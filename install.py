@@ -40,7 +40,7 @@ def tmp_virtualenv():
         download(PIP_URL, tmp)
         yield run
 
-def clone_git(url, directory):
+def git_clone(url, directory):
     runcmd(['git', 'clone', url], cwd=str(directory))
 
 def main():
@@ -53,9 +53,9 @@ def main():
         create_virtualenv(home / 'venvs' / 'search')
         create_virtualenv(home / 'venvs' / 'snoop')
 
-    clone_git(SEARCH_REPO, home)
-    clone_git(SNOOP_REPO, home)
-    clone_git(UI_REPO, home)
+    git_clone(SEARCH_REPO, home)
+    git_clone(SNOOP_REPO, home)
+    git_clone(UI_REPO, home)
 
     venv = lambda name, cmd: home / 'venvs' / name / 'bin' / cmd
     runcmd([
