@@ -16,6 +16,7 @@ UI_REPO = 'https://github.com/hoover/ui.git'
 HOOVER_SCRIPT = """\
 #!/bin/sh
 cd '{setup}'
+export HOOVER_HOME='{home}'
 {python} hoover_script.py "$@"
 """
 
@@ -81,6 +82,7 @@ def main():
     with bin_hoover.open('w', encoding='utf-8') as f:
         f.write(HOOVER_SCRIPT.format(
             python=sys.executable,
+            home=home,
             setup=home / 'setup',
         ))
     bin_hoover.chmod(0o755)
