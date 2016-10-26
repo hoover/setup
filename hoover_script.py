@@ -30,6 +30,7 @@ def configure_search():
 
     print("Configuration values for hoover-search")
     values = {
+        'ui_root': str(home / 'ui' / 'build'),
         'secret_key': random_secret_key(),
         'db_name': question("PostgreSQL database", 'hoover-search'),
         'es_url': question("Elasticsearch URL", 'http://localhost:9200'),
@@ -47,6 +48,7 @@ def configure_search():
         STATIC_ROOT = str(base_dir / 'static')
         HOOVER_UPLOADS_ROOT = str(base_dir / 'uploads')
         HOOVER_ELASTICSEARCH_URL = {es_url!r}
+        HOOVER_UI_ROOT = {ui_root!r}
     """)
     with local_py.open('w', encoding='utf-8') as f:
         f.write(template.format(**values))

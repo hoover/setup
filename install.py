@@ -76,6 +76,7 @@ def main():
         '-r', home / 'snoop' / 'requirements.txt',
     ])
     runcmd(['npm', 'install'], cwd=str(home / 'ui'))
+    runcmd(['./run', 'build'], cwd=str(home / 'ui'))
 
     (home / 'bin').mkdir(exist_ok=True)
     bin_hoover = home / 'bin' / 'hoover'
