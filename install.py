@@ -57,5 +57,16 @@ def main():
     clone_git(SNOOP_REPO, home)
     clone_git(UI_REPO, home)
 
+    venv = lambda name, cmd: home / 'venvs' / name / 'bin' / cmd
+    runcmd([
+        venv('search', 'pip'), 'install',
+        '-r', home / 'search' / 'requirements.txt',
+    ])
+    runcmd([
+        venv('snoop', 'pip'), 'install',
+        '-r', home / 'snoop' / 'requirements.txt',
+    ])
+    runcmd(['npm', 'install'], cwd=str(home / 'ui'))
+
 if __name__ == '__main__':
     main()
