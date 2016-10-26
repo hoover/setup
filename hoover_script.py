@@ -51,9 +51,36 @@ def configure_search():
     with local_py.open('w', encoding='utf-8') as f:
         f.write(template.format(**values))
 
+def configure_snoop():
+    local_py = home / 'snoop' / 'snoop' / 'site' / 'settings' / 'local.py'
+    if local_py.exists():
+        print("{!s} already exists, skipping".format(local_py))
+        return
+
+    print("Configuration values for hoover-snoop")
+    values = {
+        'secret_key': random_secret_key(),
+        'db_name': question("PostgreSQL database", 'hoover-snoop'),
+        'es_url': question("Elasticsearch URL", 'http://localhost:9200'),
+        'data_path': question("Path to dataset", '/tmp/dataset'),
+    }
+    template = dedent("""\
+        SECRET_KEY = {secret_key!r}
+        DATABASES = {{
+            'default': {{
+                'ENGINE': 'django.db.backends.postgresql_psycopg2',
+                'NAME': {db_name!r},
+            }}
+        }}
+        SNOOP_ROOT = {data_path!r}
+    """)
+    with local_py.open('w', encoding='utf-8') as f:
+        f.write(template.format(**values))
+
 def main(argv):
     if argv == ['configure']:
         configure_search()
+        configure_snoop()
         return
 
     raise RuntimeError("Unknown command {!r}".format(argv))
