@@ -79,11 +79,33 @@ def configure_snoop():
     with local_py.open('w', encoding='utf-8') as f:
         f.write(template.format(**values))
 
+def execv(args):
+    os.execv(args[0], args)
+
 def main(argv):
     if argv == ['configure']:
         configure_search()
         configure_snoop()
         return
+
+    if argv[:1] == ['webserver']:
+        if argv[1:2] == ['search']:
+            waitress = str(home / 'venvs' / 'search' / 'bin' / 'waitress-serve')
+            execv([waitress] + argv[2:] + ['hoover.site.wsgi:application'])
+
+        if argv[1:2] == ['snoop']:
+            waitress = str(home / 'venvs' / 'snoop' / 'bin' / 'waitress-serve')
+            execv([waitress] + argv[2:] + ['snoop.site.wsgi:application'])
+
+    if argv[:1] == ['snoop']:
+        py = str(home / 'venvs' / 'snoop' / 'bin' / 'python')
+        manage_py = str(home / 'snoop' / 'manage.py')
+        execv([py, manage_py] + argv[1:])
+
+    if argv[:1] == ['search']:
+        py = str(home / 'venvs' / 'search' / 'bin' / 'python')
+        manage_py = str(home / 'search' / 'manage.py')
+        execv([py, manage_py] + argv[1:])
 
     raise RuntimeError("Unknown command {!r}".format(argv))
 
