@@ -1,4 +1,5 @@
 import sys
+import os
 import subprocess
 from pathlib import Path
 from contextlib import contextmanager
@@ -25,6 +26,9 @@ def question(label, default):
     return rv.strip() or default
 
 def runcmd(cmd, **kwargs):
+    if 'env' not in kwargs:
+        kwargs['env'] = dict(os.environ)
+        kwargs['env'].pop('__PYVENV_LAUNCHER__', None)
     subprocess.check_call([str(c) for c in cmd], **kwargs)
 
 @contextmanager
