@@ -85,8 +85,8 @@ def bootstrap(args):
         venv('snoop', 'pip'), 'install',
         '-r', home / 'snoop' / 'requirements.txt',
     ])
-    migrate('search')
-    migrate('snoop')
+    manage_py('search', 'migrate')
+    manage_py('snoop', 'migrate')
     runcmd(['npm', 'install'], cwd=str(home / 'ui'))
     runcmd(['./run', 'build'], cwd=str(home / 'ui'))
 
@@ -175,12 +175,9 @@ def configure(args):
 def update(args):
     runcmd(['git', 'pull'], cwd=str(home / 'setup'))
 
-def migrate(name):
-    runcmd([
-        home / 'venvs' / name / 'bin' / 'python',
-        home / name / 'manage.py',
-        'migrate',
-    ])
+def manage_py(name, *args):
+    python = home / 'venvs' / name / 'bin' / 'python'
+    runcmd([python, home / name / 'manage.py'] + list(args))
 
 def upgrade(args):
     runcmd(['git', 'pull'], cwd=str(home / 'search'))
@@ -190,8 +187,8 @@ def upgrade(args):
         cwd=str(home / 'search'))
     runcmd([home / 'venvs' / 'snoop' / 'bin' / 'pip-sync'],
         cwd=str(home / 'snoop'))
-    migrate('search')
-    migrate('snoop')
+    manage_py('search', 'migrate')
+    manage_py('snoop', 'migrate')
     runcmd(['npm', 'install'], cwd=str(home / 'ui'))
     runcmd(['./run', 'build'], cwd=str(home / 'ui'))
 
