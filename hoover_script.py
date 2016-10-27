@@ -1,5 +1,6 @@
 import sys
 import os
+import argparse
 import random
 import math
 import subprocess
@@ -135,8 +136,28 @@ def configure_snoop():
 def execv(args):
     os.execv(args[0], args)
 
-def main(argv):
-    if argv == ['bootstrap']:
+def run_webserver(args):
+    parser = argparse.ArgumentParser(description="Run webserver")
+    parser.add_argument('server', choices=['search', 'snoop'])
+    (options, extra_args) = parser.parse_known_args(args)
+
+    if options.server == 'search':
+        waitress = str(home / 'venvs' / 'search' / 'bin' / 'waitress-serve')
+        os.chdir(str(home / 'search'))
+        execv([waitress] + extra_args + ['hoover.site.wsgi:application'])
+
+    if options.server == 'snoop':
+        waitress = str(home / 'venvs' / 'snoop' / 'bin' / 'waitress-serve')
+        os.chdir(str(home / 'snoop'))
+        execv([waitress] + extra_args + ['snoop.site.wsgi:application'])
+
+def main():
+    parser = argparse.ArgumentParser(description="Hoover setup")
+    parser.add_argument('cmd',
+        choices=['bootstrap', 'configure', 'webserver', 'snoop', 'search'])
+    (options, extra_args) = parser.parse_known_args()
+
+    if options.cmd == 'bootstrap':
         git_clone(SEARCH_REPO, home)
         git_clone(SNOOP_REPO, home)
         git_clone(UI_REPO, home)
@@ -170,33 +191,24 @@ def main(argv):
         print("Success!")
         return
 
-    if argv == ['configure']:
+    if options.cmd == 'configure':
         configure_search()
         configure_snoop()
         return
 
-    if argv[:1] == ['webserver']:
-        if argv[1:2] == ['search']:
-            waitress = str(home / 'venvs' / 'search' / 'bin' / 'waitress-serve')
-            os.chdir(str(home / 'search'))
-            execv([waitress] + argv[2:] + ['hoover.site.wsgi:application'])
+    if options.cmd == 'webserver':
+        run_webserver(extra_args)
+        return
 
-        if argv[1:2] == ['snoop']:
-            waitress = str(home / 'venvs' / 'snoop' / 'bin' / 'waitress-serve')
-            os.chdir(str(home / 'snoop'))
-            execv([waitress] + argv[2:] + ['snoop.site.wsgi:application'])
-
-    if argv[:1] == ['snoop']:
+    if options.cmd == 'snoop':
         py = str(home / 'venvs' / 'snoop' / 'bin' / 'python')
         manage_py = str(home / 'snoop' / 'manage.py')
-        execv([py, manage_py] + argv[1:])
+        execv([py, manage_py] + extra_args)
 
-    if argv[:1] == ['search']:
+    if options.cmd == 'search':
         py = str(home / 'venvs' / 'search' / 'bin' / 'python')
         manage_py = str(home / 'search' / 'manage.py')
-        execv([py, manage_py] + argv[1:])
-
-    raise RuntimeError("Unknown command {!r}".format(argv))
+        execv([py, manage_py] + extra_args)
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    main()
