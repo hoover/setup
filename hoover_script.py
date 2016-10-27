@@ -45,13 +45,17 @@ def tmp_virtualenv():
             name = url.split('/')[-1]
             urlretrieve(url, str(directory / name))
 
-        def run(*args):
-            cmd = (
+        def run(target):
+            runcmd([
                 sys.executable,
                 tmp / 'virtualenv.py',
                 '--extra-search-dir={}'.format(tmp),
-            )
-            runcmd(cmd + args)
+                target,
+            ])
+            runcmd([
+                target / 'bin' / 'pip',
+                'install', '-U', 'setuptools', 'pip',
+            ])
 
         tmp = Path(_tmp)
         download(VIRTUALENV_URL, tmp)
