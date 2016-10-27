@@ -91,10 +91,12 @@ def main(argv):
     if argv[:1] == ['webserver']:
         if argv[1:2] == ['search']:
             waitress = str(home / 'venvs' / 'search' / 'bin' / 'waitress-serve')
+            os.chdir(str(home / 'search'))
             execv([waitress] + argv[2:] + ['hoover.site.wsgi:application'])
 
         if argv[1:2] == ['snoop']:
             waitress = str(home / 'venvs' / 'snoop' / 'bin' / 'waitress-serve')
+            os.chdir(str(home / 'snoop'))
             execv([waitress] + argv[2:] + ['snoop.site.wsgi:application'])
 
     if argv[:1] == ['snoop']:
