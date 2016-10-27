@@ -103,9 +103,9 @@ def bootstrap(args):
         venv('snoop', 'pip'), 'install',
         '-r', home / 'snoop' / 'requirements.txt',
     ])
-    preflight()
     create_scripts()
     configure([])
+    preflight()
 
 def random_secret_key(entropy=256):
     vocabulary = ('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
