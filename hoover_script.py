@@ -85,6 +85,8 @@ def bootstrap(args):
         venv('snoop', 'pip'), 'install',
         '-r', home / 'snoop' / 'requirements.txt',
     ])
+    migrate('search')
+    migrate('snoop')
     runcmd(['npm', 'install'], cwd=str(home / 'ui'))
     runcmd(['./run', 'build'], cwd=str(home / 'ui'))
 
