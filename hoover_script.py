@@ -87,6 +87,9 @@ def bootstrap(args):
     ])
     manage_py('search', 'migrate')
     manage_py('snoop', 'migrate')
+    manage_py('search', 'downloadassets')
+    manage_py('search', 'collectstatic', '--noinput')
+    manage_py('snoop', 'collectstatic', '--noinput')
     runcmd(['npm', 'install'], cwd=str(home / 'ui'))
     runcmd(['./run', 'build'], cwd=str(home / 'ui'))
 
@@ -189,6 +192,9 @@ def upgrade(args):
         cwd=str(home / 'snoop'))
     manage_py('search', 'migrate')
     manage_py('snoop', 'migrate')
+    manage_py('search', 'downloadassets')
+    manage_py('search', 'collectstatic', '--noinput')
+    manage_py('snoop', 'collectstatic', '--noinput')
     runcmd(['npm', 'install'], cwd=str(home / 'ui'))
     runcmd(['./run', 'build'], cwd=str(home / 'ui'))
 
