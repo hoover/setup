@@ -173,6 +173,27 @@ def configure(args):
 def update(args):
     runcmd(['git', 'pull'], cwd=str(home / 'setup'))
 
+def upgrade(args):
+    runcmd(['git', 'pull'], cwd=str(home / 'search'))
+    runcmd(['git', 'pull'], cwd=str(home / 'snoop'))
+    runcmd(['git', 'pull'], cwd=str(home / 'ui'))
+    runcmd([home / 'venvs' / 'search' / 'bin' / 'pip-sync'],
+        cwd=str(home / 'search'))
+    runcmd([home / 'venvs' / 'snoop' / 'bin' / 'pip-sync'],
+        cwd=str(home / 'snoop'))
+    runcmd([
+        home / 'venvs' / 'search' / 'bin' / 'python',
+        home / 'search' / 'manage.py',
+        'migrate',
+    ])
+    runcmd([
+        home / 'venvs' / 'snoop' / 'bin' / 'python',
+        home / 'snoop' / 'manage.py',
+        'migrate',
+    ])
+    runcmd(['npm', 'install'], cwd=str(home / 'ui'))
+    runcmd(['./run', 'build'], cwd=str(home / 'ui'))
+
 def execv(args):
     os.execv(args[0], args)
 
@@ -204,7 +225,7 @@ def search(args):
 def main():
     parser = HooverParser(description="Hoover setup")
     parser.add_subcommands('cmd', [
-        bootstrap, configure, update,
+        bootstrap, configure, update, upgrade,
         webserver, snoop, search,
     ])
     (options, extra_args) = parser.parse_known_args()
