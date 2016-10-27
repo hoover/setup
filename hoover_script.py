@@ -173,6 +173,13 @@ def configure(args):
 def update(args):
     runcmd(['git', 'pull'], cwd=str(home / 'setup'))
 
+def migrate(name):
+    runcmd([
+        home / 'venvs' / name / 'bin' / 'python',
+        home / name / 'manage.py',
+        'migrate',
+    ])
+
 def upgrade(args):
     runcmd(['git', 'pull'], cwd=str(home / 'search'))
     runcmd(['git', 'pull'], cwd=str(home / 'snoop'))
@@ -181,16 +188,8 @@ def upgrade(args):
         cwd=str(home / 'search'))
     runcmd([home / 'venvs' / 'snoop' / 'bin' / 'pip-sync'],
         cwd=str(home / 'snoop'))
-    runcmd([
-        home / 'venvs' / 'search' / 'bin' / 'python',
-        home / 'search' / 'manage.py',
-        'migrate',
-    ])
-    runcmd([
-        home / 'venvs' / 'snoop' / 'bin' / 'python',
-        home / 'snoop' / 'manage.py',
-        'migrate',
-    ])
+    migrate('search')
+    migrate('snoop')
     runcmd(['npm', 'install'], cwd=str(home / 'ui'))
     runcmd(['./run', 'build'], cwd=str(home / 'ui'))
 
