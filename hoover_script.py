@@ -99,6 +99,7 @@ def configure_search():
         }}
         STATIC_ROOT = str(base_dir / 'static')
         HOOVER_UPLOADS_ROOT = str(base_dir / 'uploads')
+        HOOVER_ELASTICSEARCH_URL = {es_url!r}
         HOOVER_UI_ROOT = {ui_root!r}
     """)
     with local_py.open('w', encoding='utf-8') as f:
