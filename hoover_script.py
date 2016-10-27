@@ -75,6 +75,16 @@ def preflight():
     runcmd(['npm', 'install'], cwd=str(home / 'ui'))
     runcmd(['./run', 'build'], cwd=str(home / 'ui'))
 
+def create_scripts():
+    (home / 'bin').mkdir(exist_ok=True)
+    bin_hoover = home / 'bin' / 'hoover'
+    with bin_hoover.open('w', encoding='utf-8') as f:
+        f.write(HOOVER_SCRIPT.format(
+            python=sys.executable,
+            home=home,
+            setup=home / 'setup',
+        ))
+    bin_hoover.chmod(0o755)
 def bootstrap(args):
     git_clone(SEARCH_REPO, home)
     git_clone(SNOOP_REPO, home)
@@ -94,17 +104,7 @@ def bootstrap(args):
         '-r', home / 'snoop' / 'requirements.txt',
     ])
     preflight()
-
-    (home / 'bin').mkdir(exist_ok=True)
-    bin_hoover = home / 'bin' / 'hoover'
-    with bin_hoover.open('w', encoding='utf-8') as f:
-        f.write(HOOVER_SCRIPT.format(
-            python=sys.executable,
-            home=home,
-            setup=home / 'setup',
-        ))
-    bin_hoover.chmod(0o755)
-
+    create_scripts()
     configure([])
 
 def random_secret_key(entropy=256):
@@ -179,6 +179,7 @@ def configure(args):
 
 def update(args):
     runcmd(['git', 'pull'], cwd=str(home / 'setup'))
+    create_scripts()
 
 def manage_py(name, *args):
     python = home / 'venvs' / name / 'bin' / 'python'
