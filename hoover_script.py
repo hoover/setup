@@ -170,6 +170,9 @@ def configure(args):
     configure_search()
     configure_snoop()
 
+def update(args):
+    runcmd(['git', 'pull'], cwd=str(home / 'setup'))
+
 def execv(args):
     os.execv(args[0], args)
 
@@ -201,7 +204,7 @@ def search(args):
 def main():
     parser = HooverParser(description="Hoover setup")
     parser.add_subcommands('cmd', [
-        bootstrap, configure,
+        bootstrap, configure, update,
         webserver, snoop, search,
     ])
     (options, extra_args) = parser.parse_known_args()
