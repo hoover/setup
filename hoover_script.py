@@ -67,6 +67,15 @@ def tmp_virtualenv():
 def git_clone(url, directory):
     runcmd(['git', 'clone', url], cwd=str(directory))
 
+def preflight():
+    manage_py('search', 'migrate')
+    manage_py('snoop', 'migrate')
+    manage_py('search', 'downloadassets')
+    manage_py('search', 'collectstatic', '--noinput')
+    manage_py('snoop', 'collectstatic', '--noinput')
+    runcmd(['npm', 'install'], cwd=str(home / 'ui'))
+    runcmd(['./run', 'build'], cwd=str(home / 'ui'))
+
 def bootstrap(args):
     git_clone(SEARCH_REPO, home)
     git_clone(SNOOP_REPO, home)
@@ -85,13 +94,7 @@ def bootstrap(args):
         venv('snoop', 'pip'), 'install',
         '-r', home / 'snoop' / 'requirements.txt',
     ])
-    manage_py('search', 'migrate')
-    manage_py('snoop', 'migrate')
-    manage_py('search', 'downloadassets')
-    manage_py('search', 'collectstatic', '--noinput')
-    manage_py('snoop', 'collectstatic', '--noinput')
-    runcmd(['npm', 'install'], cwd=str(home / 'ui'))
-    runcmd(['./run', 'build'], cwd=str(home / 'ui'))
+    preflight()
 
     (home / 'bin').mkdir(exist_ok=True)
     bin_hoover = home / 'bin' / 'hoover'
@@ -190,13 +193,7 @@ def upgrade(args):
         cwd=str(home / 'search'))
     runcmd([home / 'venvs' / 'snoop' / 'bin' / 'pip-sync'],
         cwd=str(home / 'snoop'))
-    manage_py('search', 'migrate')
-    manage_py('snoop', 'migrate')
-    manage_py('search', 'downloadassets')
-    manage_py('search', 'collectstatic', '--noinput')
-    manage_py('snoop', 'collectstatic', '--noinput')
-    runcmd(['npm', 'install'], cwd=str(home / 'ui'))
-    runcmd(['./run', 'build'], cwd=str(home / 'ui'))
+    preflight()
 
 def execv(args):
     os.execv(args[0], args)
