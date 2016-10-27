@@ -98,8 +98,7 @@ def bootstrap(args):
         ))
     bin_hoover.chmod(0o755)
 
-    configure_search()
-    configure_snoop()
+    configure([])
 
 def random_secret_key(entropy=256):
     vocabulary = ('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -167,6 +166,10 @@ def configure_snoop():
     with local_py.open('w', encoding='utf-8') as f:
         f.write(template.format(**values))
 
+def configure(args):
+    configure_search()
+    configure_snoop()
+
 def execv(args):
     os.execv(args[0], args)
 
@@ -196,8 +199,7 @@ def main():
         return
 
     if options.cmd == 'configure':
-        configure_search()
-        configure_snoop()
+        configure([])
         return
 
     if options.cmd == 'webserver':
