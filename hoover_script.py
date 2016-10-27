@@ -188,6 +188,16 @@ def run_webserver(args):
         os.chdir(str(home / 'snoop'))
         execv([waitress] + extra_args + ['snoop.site.wsgi:application'])
 
+def run_snoop(args):
+    py = str(home / 'venvs' / 'snoop' / 'bin' / 'python')
+    manage_py = str(home / 'snoop' / 'manage.py')
+    execv([py, manage_py] + extra_args)
+
+def run_search(args):
+    py = str(home / 'venvs' / 'search' / 'bin' / 'python')
+    manage_py = str(home / 'search' / 'manage.py')
+    execv([py, manage_py] + extra_args)
+
 def main():
     parser = argparse.ArgumentParser(description="Hoover setup")
     parser.add_argument('cmd',
@@ -207,14 +217,10 @@ def main():
         return
 
     if options.cmd == 'snoop':
-        py = str(home / 'venvs' / 'snoop' / 'bin' / 'python')
-        manage_py = str(home / 'snoop' / 'manage.py')
-        execv([py, manage_py] + extra_args)
+        run_snoop([])
 
     if options.cmd == 'search':
-        py = str(home / 'venvs' / 'search' / 'bin' / 'python')
-        manage_py = str(home / 'search' / 'manage.py')
-        execv([py, manage_py] + extra_args)
+        run_search([])
 
 if __name__ == '__main__':
     main()
