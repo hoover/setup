@@ -1,6 +1,5 @@
 import sys
 import os
-import argparse
 import random
 import math
 import subprocess
@@ -9,6 +8,7 @@ from tempfile import TemporaryDirectory
 from contextlib import contextmanager
 from textwrap import dedent
 from urllib.request import urlretrieve
+from parser import HooverParser
 
 VIRTUALENV_URL = 'https://github.com/pypa/virtualenv/raw/master/virtualenv.py'
 SETUPTOOLS_URL = 'https://pypi.python.org/packages/8a/1f/e2e14f0b98d0b6de6c3fb4e8a3b45d3b8907783937c497cb53539c0d2b19/setuptools-28.6.1-py2.py3-none-any.whl'
@@ -173,8 +173,8 @@ def configure(args):
 def execv(args):
     os.execv(args[0], args)
 
-def run_webserver(args):
-    parser = argparse.ArgumentParser(description="Run webserver")
+def webserver(args):
+    parser = HooverParser(description="Run webserver")
     parser.add_argument('server', choices=['search', 'snoop'])
     (options, extra_args) = parser.parse_known_args(args)
 
@@ -188,39 +188,24 @@ def run_webserver(args):
         os.chdir(str(home / 'snoop'))
         execv([waitress] + extra_args + ['snoop.site.wsgi:application'])
 
-def run_snoop(args):
+def snoop(args):
     py = str(home / 'venvs' / 'snoop' / 'bin' / 'python')
     manage_py = str(home / 'snoop' / 'manage.py')
     execv([py, manage_py] + args)
 
-def run_search(args):
+def search(args):
     py = str(home / 'venvs' / 'search' / 'bin' / 'python')
     manage_py = str(home / 'search' / 'manage.py')
     execv([py, manage_py] + args)
 
 def main():
-    parser = argparse.ArgumentParser(description="Hoover setup")
-    parser.add_argument('cmd',
-        choices=['bootstrap', 'configure', 'webserver', 'snoop', 'search'])
+    parser = HooverParser(description="Hoover setup")
+    parser.add_subcommands('cmd', [
+        bootstrap, configure,
+        webserver, snoop, search,
+    ])
     (options, extra_args) = parser.parse_known_args()
-
-    if options.cmd == 'bootstrap':
-        bootstrap([])
-        return
-
-    if options.cmd == 'configure':
-        configure([])
-        return
-
-    if options.cmd == 'webserver':
-        run_webserver(extra_args)
-        return
-
-    if options.cmd == 'snoop':
-        run_snoop([])
-
-    if options.cmd == 'search':
-        run_search([])
+    options.cmd(extra_args)
 
 if __name__ == '__main__':
     main()
