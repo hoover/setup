@@ -21,7 +21,7 @@ HOOVER_SCRIPT = """\
 #!/bin/sh
 cd '{setup}'
 export HOOVER_HOME='{home}'
-{python} hoover_script.py "$@"
+exec {python} hoover_script.py "$@"
 """
 
 _home = os.environ.get('HOOVER_HOME')
