@@ -191,12 +191,12 @@ def run_webserver(args):
 def run_snoop(args):
     py = str(home / 'venvs' / 'snoop' / 'bin' / 'python')
     manage_py = str(home / 'snoop' / 'manage.py')
-    execv([py, manage_py] + extra_args)
+    execv([py, manage_py] + args)
 
 def run_search(args):
     py = str(home / 'venvs' / 'search' / 'bin' / 'python')
     manage_py = str(home / 'search' / 'manage.py')
-    execv([py, manage_py] + extra_args)
+    execv([py, manage_py] + args)
 
 def main():
     parser = argparse.ArgumentParser(description="Hoover setup")
