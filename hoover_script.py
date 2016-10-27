@@ -188,7 +188,8 @@ def main():
             ))
         bin_hoover.chmod(0o755)
 
-        print("Success!")
+        configure_search()
+        configure_snoop()
         return
 
     if options.cmd == 'configure':
