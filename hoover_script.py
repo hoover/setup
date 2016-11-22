@@ -125,7 +125,7 @@ def configure_search():
     values = {
         'ui_root': str(home / 'ui' / 'build'),
         'secret_key': random_secret_key(),
-        'db_name': question("PostgreSQL database", 'hoover-search'),
+        'db_name': question("PostgreSQL search database", 'hoover-search'),
         'es_url': question("Elasticsearch URL", 'http://localhost:9200'),
     }
     template = dedent("""\
@@ -155,7 +155,7 @@ def configure_snoop():
     print("Configuration values for hoover-snoop")
     values = {
         'secret_key': random_secret_key(),
-        'db_name': question("PostgreSQL database", 'hoover-snoop'),
+        'db_name': question("PostgreSQL snoop database", 'hoover-snoop'),
         'es_url': question("Elasticsearch URL", 'http://localhost:9200'),
         'data_path': question("Path to dataset", '/tmp/dataset'),
     }
