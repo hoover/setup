@@ -85,6 +85,7 @@ def create_scripts():
             setup=home / 'setup',
         ))
     bin_hoover.chmod(0o755)
+
 def bootstrap(args):
     git_clone(SEARCH_REPO, home)
     git_clone(SNOOP_REPO, home)
