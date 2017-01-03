@@ -166,6 +166,7 @@ def configure_snoop():
         'secret_key': random_secret_key(),
         'db_name': question("PostgreSQL snoop database", 'hoover-snoop'),
         'es_url': question("Elasticsearch URL", 'http://localhost:9200'),
+        'tika_url': question("Tika URL", None),
         '7z_exec': question("Path to 7z executable", shutil.which('7z')),
         '7z_cache': str(home / 'cache' / 'archives'),
         'msgconvert_exec': question("Path to msgconvert executable", shutil.which('msgconvert')),
@@ -185,6 +186,7 @@ def configure_snoop():
         }}
 
         SNOOP_ELASTICSEARCH_URL = {es_url!r}
+        SNOOP_TIKA_SERVER_ENDPOINT = {tika_url!r}
 
         SNOOP_ARCHIVE_CACHE_ROOT = {7z_cache!r}
         SNOOP_SEVENZIP_BINARY = {7z_exec!r}
