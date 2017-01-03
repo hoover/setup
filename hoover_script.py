@@ -3,6 +3,7 @@ import os
 import random
 import math
 import subprocess
+import shutil
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from contextlib import contextmanager
@@ -86,6 +87,12 @@ def create_scripts():
         ))
     bin_hoover.chmod(0o755)
 
+def create_cache_dir():
+    cache = home / 'cache'
+    cache.mkdir()
+    for directory in ['msg', 'archives', 'pst', 'gpg_home']:
+        (cache / directory).mkdir()
+
 def bootstrap(args):
     git_clone(SEARCH_REPO, home)
     git_clone(SNOOP_REPO, home)
@@ -104,6 +111,7 @@ def bootstrap(args):
         venv('snoop', 'pip'), 'install',
         '-r', home / 'snoop' / 'requirements.txt',
     ])
+    create_cache_dir()
     create_scripts()
     configure([])
     preflight()
@@ -159,6 +167,14 @@ def configure_snoop():
         'db_name': question("PostgreSQL snoop database", 'hoover-snoop'),
         'es_url': question("Elasticsearch URL", 'http://localhost:9200'),
         'data_path': question("Path to dataset", '/tmp/dataset'),
+        '7z_exec': question("Path to 7z executable", shutil.which('7z')),
+        '7z_cache': str(home / 'cache' / 'archives'),
+        'msgconvert_exec': question("Path to msgconvert executable", shutil.which('msgconvert')),
+        'msg_cache': str(home / 'cache' / 'msg'),
+        'readpst_exec': question("Path to readpst executable", shutil.which('readpst')),
+        'pst_cache': str(home / 'cache' / 'pst'),
+        'gpg_exec': question("Path to gpg executable", shutil.which('gpg')),
+        'gpg_home': str(home / 'cache' / 'gpg_home'),
     }
     template = dedent("""\
         SECRET_KEY = {secret_key!r}
@@ -168,8 +184,21 @@ def configure_snoop():
                 'NAME': {db_name!r},
             }}
         }}
+
         SNOOP_ROOT = {data_path!r}
         SNOOP_ELASTICSEARCH_URL = {es_url!r}
+
+        SNOOP_ARCHIVE_CACHE_ROOT = {7z_cache!r}
+        SNOOP_SEVENZIP_BINARY = {7z_exec!r}
+
+        SNOOP_MSG_CACHE = {msg_cache!r}
+        SNOOP_MSGCONVERT_SCRIPT = {msgconvert_exec!r}
+
+        SNOOP_PST_CACHE_ROOT = {pst_cache!r}
+        SNOOP_READPST_BINARY = {readpst_exec!r}
+
+        SNOOP_GPG_HOME = {gpg_home!r}
+        SNOOP_GPG_BINARY = {gpg_exec!r}
     """)
     with local_py.open('w', encoding='utf-8') as f:
         f.write(template.format(**values))
