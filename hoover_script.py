@@ -166,7 +166,6 @@ def configure_snoop():
         'secret_key': random_secret_key(),
         'db_name': question("PostgreSQL snoop database", 'hoover-snoop'),
         'es_url': question("Elasticsearch URL", 'http://localhost:9200'),
-        'data_path': question("Path to dataset", '/tmp/dataset'),
         '7z_exec': question("Path to 7z executable", shutil.which('7z')),
         '7z_cache': str(home / 'cache' / 'archives'),
         'msgconvert_exec': question("Path to msgconvert executable", shutil.which('msgconvert')),
@@ -185,7 +184,6 @@ def configure_snoop():
             }}
         }}
 
-        SNOOP_ROOT = {data_path!r}
         SNOOP_ELASTICSEARCH_URL = {es_url!r}
 
         SNOOP_ARCHIVE_CACHE_ROOT = {7z_cache!r}
