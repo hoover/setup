@@ -11,12 +11,12 @@ from textwrap import dedent
 from urllib.request import urlretrieve
 from parser import HooverParser
 
-VIRTUALENV_URL = 'https://github.com/pypa/virtualenv/raw/master/virtualenv.py'
-SETUPTOOLS_URL = 'https://pypi.python.org/packages/8a/1f/e2e14f0b98d0b6de6c3fb4e8a3b45d3b8907783937c497cb53539c0d2b19/setuptools-28.6.1-py2.py3-none-any.whl'
-PIP_URL = 'https://pypi.python.org/packages/9c/32/004ce0852e0a127f07f358b715015763273799bd798956fa930814b60f39/pip-8.1.2-py2.py3-none-any.whl'
-SEARCH_REPO = 'https://github.com/hoover/search.git'
-SNOOP_REPO = 'https://github.com/hoover/snoop.git'
-UI_REPO = 'https://github.com/hoover/ui.git'
+DEFAULT_VIRTUALENV_URL = 'https://github.com/pypa/virtualenv/raw/master/virtualenv.py'
+DEFAULT_SETUPTOOLS_URL = 'https://pypi.python.org/packages/8a/1f/e2e14f0b98d0b6de6c3fb4e8a3b45d3b8907783937c497cb53539c0d2b19/setuptools-28.6.1-py2.py3-none-any.whl'
+DEFAULT_PIP_URL = 'https://pypi.python.org/packages/9c/32/004ce0852e0a127f07f358b715015763273799bd798956fa930814b60f39/pip-8.1.2-py2.py3-none-any.whl'
+DEFAULT_SEARCH_REPO = 'https://github.com/hoover/search.git'
+DEFAULT_SNOOP_REPO = 'https://github.com/hoover/snoop.git'
+DEFAULT_UI_REPO = 'https://github.com/hoover/ui.git'
 
 HOOVER_SCRIPT = """\
 #!/bin/sh
@@ -30,9 +30,46 @@ if not _home:
     raise RuntimeError("HOOVER_HOME environment variable is not set")
 home = Path(_home)
 
+interactive_mode = False
+
 def question(label, default):
     rv = input("{} [{}]: ".format(label, default))
     return rv.strip() or default
+
+class Param:
+    def __init(self, name, default, environ=None, question_label=None):
+        self.name = name
+        self.default = default
+        self.environ = environ
+        self.question_label = question_label
+        self.value = None
+
+    def get(self):
+        if self.value is not None:
+            return self.value
+
+        if os.getenv(self.environ):
+            self.value = os.getenv(self.environ)
+        elif interactive_mode and question_label is not None:
+            self.value = question(self.question_label, self.default)
+        else:
+            self.value = self.default
+
+        if self.value is None:
+            raise RuntimeError(("The {} param was not set! Use the {} " +
+                "environment variable to set it.").format(self.name, self.environ))
+
+        return self.value
+
+    def get_path(self):
+        return Path(self.get())
+
+VIRTUALENV_URL = Param('virtualenv_url', DEFAULT_VIRTUALENV_URL ,'HOOVER_VIRTUALENV_URL');
+SETUPTOOLS_URL = Param('setuptools_url', DEFAULT_SETUPTOOLS_URL ,'HOOVER_SETUPTOOLS_URL');
+PIP_URL        = Param('pip_url',        DEFAULT_PIP_URL        ,'HOOVER_PIP_URL');
+SEARCH_REPO    = Param('search_repo',    DEFAULT_SEARCH_REPO    ,'HOOVER_SEARCH_REPO');
+SNOOP_REPO     = Param('snoop_repo',     DEFAULT_SNOOP_REPO     ,'HOOVER_SNOOP_REPO');
+UI_REPO        = Param('ui_repo',        DEFAULT_UI_REPO        ,'HOOVER_UI_REPO');
 
 def runcmd(cmd, **kwargs):
     if 'env' not in kwargs:
@@ -60,9 +97,9 @@ def tmp_virtualenv():
             ])
 
         tmp = Path(_tmp)
-        download(VIRTUALENV_URL, tmp)
-        download(SETUPTOOLS_URL, tmp)
-        download(PIP_URL, tmp)
+        download(VIRTUALENV_URL.get(), tmp)
+        download(SETUPTOOLS_URL.get(), tmp)
+        download(PIP_URL.get(), tmp)
         yield run
 
 def git_clone(url, directory):
@@ -94,9 +131,9 @@ def create_cache_dir():
         (cache / directory).mkdir()
 
 def bootstrap(args):
-    git_clone(SEARCH_REPO, home)
-    git_clone(SNOOP_REPO, home)
-    git_clone(UI_REPO, home)
+    git_clone(SEARCH_REPO.get(), home)
+    git_clone(SNOOP_REPO.get(), home)
+    git_clone(UI_REPO.get(), home)
 
     with tmp_virtualenv() as create_virtualenv:
         create_virtualenv(home / 'venvs' / 'search')
