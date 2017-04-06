@@ -279,7 +279,7 @@ def configure_search():
         'ui_root': str(home / 'ui' / 'build'),
         'secret_key': random_secret_key(),
         'db_name': SEARCH_DB.get(),
-        'es_url': ELASTICSEARCH_URL.get()
+        'es_url': ES_URL.get()
     }
     template = dedent("""\
         from pathlib import Path
