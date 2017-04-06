@@ -341,7 +341,6 @@ def configure_snoop():
         'pst_cache': str(home / 'cache' / 'pst') if READPST_EXEC.get() else None,
         'gpg_exec': GPG_EXEC.get(),
         'gpg_home': str(home / 'cache' / 'gpg_home') if GPG_EXEC.get() else None,
-        'allowed_hosts': ALLOWED_HOSTS.get().split(),
     }
     template = dedent("""\
         SECRET_KEY = {secret_key!r}
@@ -352,7 +351,7 @@ def configure_snoop():
             }}
         }}
 
-        ALLOWED_HOSTS = {allowed_hosts!r}
+        ALLOWED_HOSTS = ["localhost"]
 
         SNOOP_ELASTICSEARCH_URL = {es_url!r}
         SNOOP_TIKA_SERVER_ENDPOINT = {tika_url!r}
