@@ -31,7 +31,7 @@ bin/hoover upgrade
 
 The following environment variables are used to specify different arguments for the setup:
 
-| *Name*                         | *Explanation*                                                       | *Default*          |
+| Name                           | Explanation                                                         | Default            |
 |--------------------------------|---------------------------------------------------------------------|--------------------|
 | `HOOVER_HOME`                  | The path where Hoover is installed.                                 | `pwd() / hoover`   |
 | `HOOVER_VIRTUALENV_URL`        | The source of the virtualenv package.                               |                    |
