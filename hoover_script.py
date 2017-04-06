@@ -128,7 +128,7 @@ ES_URL = Param(
 
 TIKA_URL = Param(
         name = 'tika_url',
-        default = 'http://localhost:9998',
+        default = None,
         environ = 'HOOVER_TIKA_URL',
         question_label = "Tika URL",
         optional = True
