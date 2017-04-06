@@ -93,6 +93,13 @@ SEARCH_REPO = Param(
         environ = 'HOOVER_SEARCH_REPO'
 )
 
+BOOTSTRAP_NO_DB = Param(
+        name = 'bootstrap_no_db',
+        default = False,
+        environ = 'HOOVER_BOOTSTRAP_NO_DB',
+        optional = True
+)
+
 SNOOP_REPO = Param(
         name = 'snoop_repo',
         default = DEFAULT_SNOOP_REPO,
@@ -212,9 +219,13 @@ def tmp_virtualenv():
 def git_clone(url, directory):
     runcmd(['git', 'clone', url], cwd=str(directory))
 
-def preflight():
+def migrate():
     manage_py('search', 'migrate')
     manage_py('snoop', 'migrate')
+
+def preflight(skip_migrations=False):
+    if not skip_migrations:
+        migrate()
     manage_py('search', 'downloadassets')
     manage_py('search', 'collectstatic', '--noinput')
     runcmd(['npm', 'install'], cwd=str(home / 'ui'))
@@ -258,7 +269,7 @@ def bootstrap(args):
     create_cache_dir()
     create_scripts()
     configure([])
-    preflight()
+    preflight(BOOTSTRAP_NO_DB.get())
 
 def random_secret_key(entropy=256):
     vocabulary = ('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'

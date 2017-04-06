@@ -40,7 +40,7 @@ The following environment variables are used to specify different arguments for 
 | `HOOVER_SEARCH_DB`             | The postgres database that `search` uses.                           | `hoover-search`    |
 | `HOOVER_SNOOP_DB`              | The postgresql database that `snoop` uses.                          | `hoover-snoop`     |
 | `HOOVER_ES_URL`                | The elasticsearch URL that will be used.                            | `localhost:9200`   |
-| `HOOVER_TIKA_URL`              | The Apache Tika URL that will be used by `snoop`. Optional.         |  None              |
+| `HOOVER_TIKA_URL`              | The Apache Tika URL that will be used by `snoop`. Optional.         | `None`             |
 | `HOOVER_SNOOP_SEVENZIP_EXEC`   | The `7z` executable that will be used by `snoop`. Optional.         | `which 7z`         |
 | `HOOVER_SNOOP_MSGCONVERT_EXEC` | The `msgconvert` executable that will be used by `snoop`. Optional. | `which msgconvert` |
 | `HOOVER_SNOOP_READPST_EXEC`    | The `readpst` executable that will be used by `snoop`. Optional.    | `which readpst`    |
@@ -50,4 +50,5 @@ The following environment variables are used to specify different arguments for 
 | `HOOVER_SEARCH_REPO`           | The git repo from where the `search` repo is cloned.                |                    |
 | `HOOVER_SNOOP_REPO`            | The git repo from where the `snoop` repo is cloned.                 |                    |
 | `HOOVER_UI_REPO`               | The git repo from where the `ui` repo is cloned.                    |                    |
+| `HOOVER_BOOTSTRAP_NO_DB`       | Don't assume the databases exist on bootstrap. Run `upgrade` when they're available. | `None`             |
 
