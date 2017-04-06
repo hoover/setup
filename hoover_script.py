@@ -173,6 +173,13 @@ GPG_EXEC = Param(
         optional = True
 )
 
+ALLOWED_HOSTS = Param(
+        name = 'allowed_hosts',
+        default = 'localhost',
+        environ = 'HOOVER_ALLOWED_HOSTS',
+        question_label = "Space separated list with the allowed hosts"
+)
+
 def list_params(args):
     print("Listing HOOVER SETUP params...")
     print()
@@ -290,7 +297,8 @@ def configure_search():
         'ui_root': str(home / 'ui' / 'build'),
         'secret_key': random_secret_key(),
         'db_name': SEARCH_DB.get(),
-        'es_url': ES_URL.get()
+        'es_url': ES_URL.get(),
+        'allowed_hosts': ALLOWED_HOSTS.get().split(),
     }
     template = dedent("""\
         from pathlib import Path
@@ -302,6 +310,9 @@ def configure_search():
                 'NAME': {db_name!r},
             }},
         }}
+
+        ALLOWED_HOSTS = {allowed_hosts!r}
+
         STATIC_ROOT = str(base_dir / 'static')
         HOOVER_UPLOADS_ROOT = str(base_dir / 'uploads')
         HOOVER_ELASTICSEARCH_URL = {es_url!r}
@@ -330,6 +341,7 @@ def configure_snoop():
         'pst_cache': str(home / 'cache' / 'pst') if READPST_EXEC.get() else None,
         'gpg_exec': GPG_EXEC.get(),
         'gpg_home': str(home / 'cache' / 'gpg_home') if GPG_EXEC.get() else None,
+        'allowed_hosts': ALLOWED_HOSTS.get().split(),
     }
     template = dedent("""\
         SECRET_KEY = {secret_key!r}
@@ -339,6 +351,8 @@ def configure_snoop():
                 'NAME': {db_name!r},
             }}
         }}
+
+        ALLOWED_HOSTS = {allowed_hosts!r}
 
         SNOOP_ELASTICSEARCH_URL = {es_url!r}
         SNOOP_TIKA_SERVER_ENDPOINT = {tika_url!r}
