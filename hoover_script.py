@@ -27,7 +27,6 @@ home = Path(_home)
 interactive_mode = False
 
 class Param:
-    param_list = []
 
     def __init__(self, name, default, environ=None, question_label=None, required=True):
         self.name = name
@@ -36,7 +35,7 @@ class Param:
         self.question_label = question_label
         self.required = required
         self.value = None
-        Param.param_list.append(self)
+        Params.param_list.append(self)
 
     @staticmethod
     def _question(label, default):
@@ -63,121 +62,128 @@ class Param:
     def get_path(self):
         return Path(self.get())
 
-VIRTUALENV_URL = Param(
+class Params:
+    param_list = []
+
+    virtualenv_url = Param(
         name = 'virtualenv_url',
         default = 'https://github.com/pypa/virtualenv/raw/master/virtualenv.py',
         environ = 'HOOVER_VIRTUALENV_URL'
-)
+    )
 
-SETUPTOOLS_URL = Param(
+    setuptools_url = Param(
         name = 'setuptools_url',
         default = 'https://pypi.python.org/packages/8a/1f/e2e14f0b98d0b6de6c3fb4e8a3b45d3b8907783937c497cb53539c0d2b19/setuptools-28.6.1-py2.py3-none-any.whl',
         environ = 'HOOVER_SETUPTOOLS_URL'
-)
+    )
 
-PIP_URL = Param(
+    pip_url = Param(
         name = 'pip_url',
         default = 'https://pypi.python.org/packages/9c/32/004ce0852e0a127f07f358b715015763273799bd798956fa930814b60f39/pip-8.1.2-py2.py3-none-any.whl',
         environ = 'HOOVER_PIP_URL'
-)
+    )
 
-SEARCH_REPO = Param(
+    search_repo = Param(
         name = 'search_repo',
         default = 'https://github.com/hoover/search.git',
         environ = 'HOOVER_SEARCH_REPO'
-)
+    )
 
-BOOTSTRAP_NO_DB = Param(
+    bootstrap_no_db = Param(
         name = 'bootstrap_no_db',
         default = False,
         environ = 'HOOVER_BOOTSTRAP_NO_DB',
         required = False
-)
+    )
 
-SNOOP_REPO = Param(
+    snoop_repo = Param(
         name = 'snoop_repo',
         default = 'https://github.com/hoover/snoop.git',
         environ = 'HOOVER_SNOOP_REPO'
-)
+    )
 
-UI_REPO = Param(
+    ui_repo = Param(
         name = 'ui_repo',
         default = 'https://github.com/hoover/ui.git',
         environ = 'HOOVER_UI_REPO'
-)
+    )
 
-SEARCH_DB = Param(
+    search_db = Param(
         name = 'search_db',
         default = 'hoover-search',
         environ = 'HOOVER_SEARCH_DB',
         question_label = "PostgreSQL search database"
-)
+    )
 
-SNOOP_DB = Param(
+    snoop_db = Param(
         name = 'snoop_db',
         default = 'hoover-snoop',
         environ = 'HOOVER_SNOOP_DB',
         question_label = "PostgreSQL snoop database"
-)
+    )
 
-ES_URL = Param(
+    es_url = Param(
         name = 'es_url',
         default = 'http://localhost:9200',
         environ = 'HOOVER_ES_URL',
         question_label = "Elasticsearch URL"
-)
+    )
 
-TIKA_URL = Param(
+    tika_url = Param(
         name = 'tika_url',
         default = None,
         environ = 'HOOVER_TIKA_URL',
         question_label = "Tika URL",
         required = False
-)
+    )
 
-SEVENZIP_EXEC = Param(
+    sevenzip_exec = Param(
         name = '7z_exec',
         default = shutil.which('7z'),
         environ = 'HOOVER_SNOOP_SEVENZIP_EXEC',
         question_label = "Path to 7z executable",
         required = False
-)
+    )
 
-MSGCONVERT_EXEC = Param(
+    msgconvert_exec = Param(
         name = 'msgconvert_exec',
         default = shutil.which('msgconvert'),
         environ = 'HOOVER_SNOOP_MSGCONVERT_EXEC',
         question_label = "Path to msgconvert executable",
         required = False
-)
+    )
 
-READPST_EXEC = Param(
+    readpst_exec = Param(
         name = 'readpst_exec',
         default = shutil.which('readpst'),
         environ = 'HOOVER_SNOOP_READPST_EXEC',
         question_label = "Path to readpst executable",
         required = False
-)
+    )
 
-GPG_EXEC = Param(
+    gpg_exec = Param(
         name = 'gpg_exec',
         default = shutil.which('gpg'),
         environ = 'HOOVER_SNOOP_GPG_EXEC',
         question_label = "Path to gpg executable",
         required = False
-)
+    )
 
-ALLOWED_HOSTS = Param(
+    allowed_hosts = Param(
         name = 'allowed_hosts',
         default = 'localhost',
         environ = 'HOOVER_ALLOWED_HOSTS',
         question_label = "Space separated list with the allowed hosts"
-)
+    )
+
+for param in Params.param_list:
+    if param.required:
+        param.get()
 
 def list_params(args):
     print("Listing HOOVER SETUP params...")
     print()
-    for param in Param.param_list:
+    for param in Params.param_list:
         print("====", param.name, "====")
         print("label:    ", param.question_label)
         print("env:      ", param.environ)
@@ -212,9 +218,9 @@ def tmp_virtualenv():
             ])
 
         tmp = Path(_tmp)
-        download(VIRTUALENV_URL.get(), tmp)
-        download(SETUPTOOLS_URL.get(), tmp)
-        download(PIP_URL.get(), tmp)
+        download(Params.virtualenv_url.get(), tmp)
+        download(Params.setuptools_url.get(), tmp)
+        download(Params.pip_url.get(), tmp)
         yield run
 
 def git_clone(url, directory):
@@ -250,9 +256,9 @@ def create_cache_dir():
         (cache / directory).mkdir()
 
 def bootstrap(args):
-    git_clone(SEARCH_REPO.get(), home)
-    git_clone(SNOOP_REPO.get(), home)
-    git_clone(UI_REPO.get(), home)
+    git_clone(Params.search_repo.get(), home)
+    git_clone(Params.snoop_repo.get(), home)
+    git_clone(Params.ui_repo.get(), home)
 
     with tmp_virtualenv() as create_virtualenv:
         create_virtualenv(home / 'venvs' / 'search')
@@ -270,7 +276,7 @@ def bootstrap(args):
     create_cache_dir()
     create_scripts()
     configure([])
-    preflight(not BOOTSTRAP_NO_DB.get())
+    preflight(not Params.bootstrap_no_db.get())
 
 def random_secret_key(entropy=256):
     vocabulary = ('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -290,9 +296,9 @@ def configure_search():
     values = {
         'ui_root': str(home / 'ui' / 'build'),
         'secret_key': random_secret_key(),
-        'db_name': SEARCH_DB.get(),
-        'es_url': ES_URL.get(),
-        'allowed_hosts': ALLOWED_HOSTS.get().split(),
+        'db_name': Params.search_db.get(),
+        'es_url': Params.es_url.get(),
+        'allowed_hosts': Params.allowed_hosts.get().split(),
     }
     template = dedent("""\
         from pathlib import Path
@@ -324,17 +330,17 @@ def configure_snoop():
     print("Configuration values for hoover-snoop")
     values = {
         'secret_key': random_secret_key(),
-        'db_name':  SNOOP_DB.get(),
-        'es_url':   ES_URL.get(),
-        'tika_url': TIKA_URL.get(),
-        '7z_exec':  SEVENZIP_EXEC.get(),
-        '7z_cache': str(home / 'cache' / 'archives') if SEVENZIP_EXEC.get() else None,
-        'msgconvert_exec': MSGCONVERT_EXEC.get(),
-        'msg_cache': str(home / 'cache' / 'msg') if MSGCONVERT_EXEC.get() else None,
-        'readpst_exec': READPST_EXEC.get(),
-        'pst_cache': str(home / 'cache' / 'pst') if READPST_EXEC.get() else None,
-        'gpg_exec': GPG_EXEC.get(),
-        'gpg_home': str(home / 'cache' / 'gpg_home') if GPG_EXEC.get() else None,
+        'db_name':  Params.snoop_db.get(),
+        'es_url':   Params.es_url.get(),
+        'tika_url': Params.tika_url.get(),
+        '7z_exec':  Params.sevenzip_exec.get(),
+        '7z_cache': str(home / 'cache' / 'archives') if Params.sevenzip_exec.get() else None,
+        'msgconvert_exec': Params.msgconvert_exec.get(),
+        'msg_cache': str(home / 'cache' / 'msg') if Params.msgconvert_exec.get() else None,
+        'readpst_exec': Params.readpst_exec.get(),
+        'pst_cache': str(home / 'cache' / 'pst') if Params.readpst_exec.get() else None,
+        'gpg_exec': Params.gpg_exec.get(),
+        'gpg_home': str(home / 'cache' / 'gpg_home') if Params.gpg_exec.get() else None,
     }
     template = dedent("""\
         SECRET_KEY = {secret_key!r}
