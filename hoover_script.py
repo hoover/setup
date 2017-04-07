@@ -224,8 +224,8 @@ def migrate():
     manage_py('search', 'migrate')
     manage_py('snoop', 'migrate')
 
-def preflight(skip_migrations=False):
-    if not skip_migrations:
+def preflight(run_migrations=True):
+    if run_migrations:
         migrate()
     manage_py('search', 'downloadassets')
     manage_py('search', 'collectstatic', '--noinput')
@@ -270,7 +270,7 @@ def bootstrap(args):
     create_cache_dir()
     create_scripts()
     configure([])
-    preflight(BOOTSTRAP_NO_DB.get())
+    preflight(not BOOTSTRAP_NO_DB.get())
 
 def random_secret_key(entropy=256):
     vocabulary = ('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
