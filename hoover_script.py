@@ -29,12 +29,12 @@ interactive_mode = False
 class Param:
     param_list = []
 
-    def __init__(self, name, default, environ=None, question_label=None, optional=False):
+    def __init__(self, name, default, environ=None, question_label=None, required=True):
         self.name = name
         self.default = default
         self.environ = environ
         self.question_label = question_label
-        self.optional = optional
+        self.required = required
         self.value = None
         Param.param_list.append(self)
 
@@ -49,12 +49,12 @@ class Param:
 
         if os.getenv(self.environ):
             self.value = os.getenv(self.environ)
-        elif interactive_mode and question_label is not None:
-            self.value = _question(self.question_label, self.default)
+        elif interactive_mode and self.required and self.question_label is not None:
+            self.value = self._question(self.question_label, self.default)
         else:
             self.value = self.default
 
-        if self.value is None and not self.optional:
+        if self.value is None and self.required:
             raise RuntimeError(("The {} param was not set! Use the {} " +
                 "environment variable to set it.").format(self.name, self.environ))
 
@@ -91,7 +91,7 @@ BOOTSTRAP_NO_DB = Param(
         name = 'bootstrap_no_db',
         default = False,
         environ = 'HOOVER_BOOTSTRAP_NO_DB',
-        optional = True
+        required = False
 )
 
 SNOOP_REPO = Param(
@@ -132,7 +132,7 @@ TIKA_URL = Param(
         default = None,
         environ = 'HOOVER_TIKA_URL',
         question_label = "Tika URL",
-        optional = True
+        required = False
 )
 
 SEVENZIP_EXEC = Param(
@@ -140,7 +140,7 @@ SEVENZIP_EXEC = Param(
         default = shutil.which('7z'),
         environ = 'HOOVER_SNOOP_SEVENZIP_EXEC',
         question_label = "Path to 7z executable",
-        optional = True
+        required = False
 )
 
 MSGCONVERT_EXEC = Param(
@@ -148,7 +148,7 @@ MSGCONVERT_EXEC = Param(
         default = shutil.which('msgconvert'),
         environ = 'HOOVER_SNOOP_MSGCONVERT_EXEC',
         question_label = "Path to msgconvert executable",
-        optional = True
+        required = False
 )
 
 READPST_EXEC = Param(
@@ -156,7 +156,7 @@ READPST_EXEC = Param(
         default = shutil.which('readpst'),
         environ = 'HOOVER_SNOOP_READPST_EXEC',
         question_label = "Path to readpst executable",
-        optional = True
+        required = False
 )
 
 GPG_EXEC = Param(
@@ -164,7 +164,7 @@ GPG_EXEC = Param(
         default = shutil.which('gpg'),
         environ = 'HOOVER_SNOOP_GPG_EXEC',
         question_label = "Path to gpg executable",
-        optional = True
+        required = False
 )
 
 ALLOWED_HOSTS = Param(
