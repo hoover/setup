@@ -11,12 +11,6 @@ from textwrap import dedent
 from urllib.request import urlretrieve
 from parser import HooverParser
 
-DEFAULT_VIRTUALENV_URL = 'https://github.com/pypa/virtualenv/raw/master/virtualenv.py'
-DEFAULT_SETUPTOOLS_URL = 'https://pypi.python.org/packages/8a/1f/e2e14f0b98d0b6de6c3fb4e8a3b45d3b8907783937c497cb53539c0d2b19/setuptools-28.6.1-py2.py3-none-any.whl'
-DEFAULT_PIP_URL = 'https://pypi.python.org/packages/9c/32/004ce0852e0a127f07f358b715015763273799bd798956fa930814b60f39/pip-8.1.2-py2.py3-none-any.whl'
-DEFAULT_SEARCH_REPO = 'https://github.com/hoover/search.git'
-DEFAULT_SNOOP_REPO = 'https://github.com/hoover/snoop.git'
-DEFAULT_UI_REPO = 'https://github.com/hoover/ui.git'
 
 HOOVER_SCRIPT = """\
 #!/bin/sh
@@ -71,25 +65,25 @@ class Param:
 
 VIRTUALENV_URL = Param(
         name = 'virtualenv_url',
-        default = DEFAULT_VIRTUALENV_URL,
+        default = 'https://github.com/pypa/virtualenv/raw/master/virtualenv.py',
         environ = 'HOOVER_VIRTUALENV_URL'
 )
 
 SETUPTOOLS_URL = Param(
         name = 'setuptools_url',
-        default = DEFAULT_SETUPTOOLS_URL,
+        default = 'https://pypi.python.org/packages/8a/1f/e2e14f0b98d0b6de6c3fb4e8a3b45d3b8907783937c497cb53539c0d2b19/setuptools-28.6.1-py2.py3-none-any.whl',
         environ = 'HOOVER_SETUPTOOLS_URL'
 )
 
 PIP_URL = Param(
         name = 'pip_url',
-        default = DEFAULT_PIP_URL,
+        default = 'https://pypi.python.org/packages/9c/32/004ce0852e0a127f07f358b715015763273799bd798956fa930814b60f39/pip-8.1.2-py2.py3-none-any.whl',
         environ = 'HOOVER_PIP_URL'
 )
 
 SEARCH_REPO = Param(
         name = 'search_repo',
-        default = DEFAULT_SEARCH_REPO,
+        default = 'https://github.com/hoover/search.git',
         environ = 'HOOVER_SEARCH_REPO'
 )
 
@@ -102,13 +96,13 @@ BOOTSTRAP_NO_DB = Param(
 
 SNOOP_REPO = Param(
         name = 'snoop_repo',
-        default = DEFAULT_SNOOP_REPO,
+        default = 'https://github.com/hoover/snoop.git',
         environ = 'HOOVER_SNOOP_REPO'
 )
 
 UI_REPO = Param(
         name = 'ui_repo',
-        default = DEFAULT_UI_REPO,
+        default = 'https://github.com/hoover/ui.git',
         environ = 'HOOVER_UI_REPO'
 )
 
