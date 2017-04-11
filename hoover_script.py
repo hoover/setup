@@ -26,8 +26,9 @@ home = Path(_home)
 
 interactive_mode = False
 
-class Param:
+param_list = []
 
+class Param:
     def __init__(self, name, default, environ=None, question_label=None, required=True):
         self.name = name
         self.default = default
@@ -35,7 +36,7 @@ class Param:
         self.question_label = question_label
         self.required = required
         self.value = None
-        Params.param_list.append(self)
+        param_list.append(self)
 
     @staticmethod
     def _question(label, default):
@@ -63,8 +64,6 @@ class Param:
         return Path(self.get())
 
 class Params:
-    param_list = []
-
     virtualenv_url = Param(
         name = 'virtualenv_url',
         default = 'https://github.com/pypa/virtualenv/raw/master/virtualenv.py',
@@ -176,7 +175,7 @@ class Params:
         question_label = "Space separated list with the allowed hosts"
     )
 
-for param in Params.param_list:
+for param in param_list:
     if param.required:
         param.get()
 
