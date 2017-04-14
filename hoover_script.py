@@ -11,12 +11,6 @@ from textwrap import dedent
 from urllib.request import urlretrieve
 from parser import HooverParser
 
-VIRTUALENV_URL = 'https://github.com/pypa/virtualenv/raw/master/virtualenv.py'
-SETUPTOOLS_URL = 'https://pypi.python.org/packages/8a/1f/e2e14f0b98d0b6de6c3fb4e8a3b45d3b8907783937c497cb53539c0d2b19/setuptools-28.6.1-py2.py3-none-any.whl'
-PIP_URL = 'https://pypi.python.org/packages/9c/32/004ce0852e0a127f07f358b715015763273799bd798956fa930814b60f39/pip-8.1.2-py2.py3-none-any.whl'
-SEARCH_REPO = 'https://github.com/hoover/search.git'
-SNOOP_REPO = 'https://github.com/hoover/snoop.git'
-UI_REPO = 'https://github.com/hoover/ui.git'
 
 HOOVER_SCRIPT = """\
 #!/bin/sh
@@ -30,9 +24,172 @@ if not _home:
     raise RuntimeError("HOOVER_HOME environment variable is not set")
 home = Path(_home)
 
-def question(label, default):
-    rv = input("{} [{}]: ".format(label, default))
-    return rv.strip() or default
+interactive_mode = False
+
+param_list = []
+
+class Param:
+    def __init__(self, name, default, environ=None, question_label=None, required=True):
+        self.name = name
+        self.default = default
+        self.environ = environ
+        self.question_label = question_label
+        self.required = required
+        self.value = None
+        param_list.append(self)
+
+    @staticmethod
+    def _question(label, default):
+        rv = input("{} [{}]: ".format(label, default))
+        return rv.strip() or default
+
+    def get(self):
+        if self.value is not None:
+            return self.value
+
+        if os.getenv(self.environ):
+            self.value = os.getenv(self.environ)
+        elif interactive_mode and self.required and self.question_label is not None:
+            self.value = self._question(self.question_label, self.default)
+        else:
+            self.value = self.default
+
+        if self.value is None and self.required:
+            raise RuntimeError(("The {} param was not set! Use the {} " +
+                "environment variable to set it.").format(self.name, self.environ))
+
+        return self.value
+
+    def get_path(self):
+        return Path(self.get())
+
+class Params:
+    virtualenv_url = Param(
+        name = 'virtualenv_url',
+        default = 'https://github.com/pypa/virtualenv/raw/master/virtualenv.py',
+        environ = 'HOOVER_VIRTUALENV_URL'
+    )
+
+    setuptools_url = Param(
+        name = 'setuptools_url',
+        default = 'https://pypi.python.org/packages/8a/1f/e2e14f0b98d0b6de6c3fb4e8a3b45d3b8907783937c497cb53539c0d2b19/setuptools-28.6.1-py2.py3-none-any.whl',
+        environ = 'HOOVER_SETUPTOOLS_URL'
+    )
+
+    pip_url = Param(
+        name = 'pip_url',
+        default = 'https://pypi.python.org/packages/9c/32/004ce0852e0a127f07f358b715015763273799bd798956fa930814b60f39/pip-8.1.2-py2.py3-none-any.whl',
+        environ = 'HOOVER_PIP_URL'
+    )
+
+    search_repo = Param(
+        name = 'search_repo',
+        default = 'https://github.com/hoover/search.git',
+        environ = 'HOOVER_SEARCH_REPO'
+    )
+
+    bootstrap_no_db = Param(
+        name = 'bootstrap_no_db',
+        default = False,
+        environ = 'HOOVER_BOOTSTRAP_NO_DB',
+        required = False
+    )
+
+    snoop_repo = Param(
+        name = 'snoop_repo',
+        default = 'https://github.com/hoover/snoop.git',
+        environ = 'HOOVER_SNOOP_REPO'
+    )
+
+    ui_repo = Param(
+        name = 'ui_repo',
+        default = 'https://github.com/hoover/ui.git',
+        environ = 'HOOVER_UI_REPO'
+    )
+
+    search_db = Param(
+        name = 'search_db',
+        default = 'hoover-search',
+        environ = 'HOOVER_SEARCH_DB',
+        question_label = "PostgreSQL search database"
+    )
+
+    snoop_db = Param(
+        name = 'snoop_db',
+        default = 'hoover-snoop',
+        environ = 'HOOVER_SNOOP_DB',
+        question_label = "PostgreSQL snoop database"
+    )
+
+    es_url = Param(
+        name = 'es_url',
+        default = 'http://localhost:9200',
+        environ = 'HOOVER_ES_URL',
+        question_label = "Elasticsearch URL"
+    )
+
+    tika_url = Param(
+        name = 'tika_url',
+        default = None,
+        environ = 'HOOVER_TIKA_URL',
+        question_label = "Tika URL",
+        required = False
+    )
+
+    sevenzip_exec = Param(
+        name = '7z_exec',
+        default = shutil.which('7z'),
+        environ = 'HOOVER_SNOOP_SEVENZIP_EXEC',
+        question_label = "Path to 7z executable",
+        required = False
+    )
+
+    msgconvert_exec = Param(
+        name = 'msgconvert_exec',
+        default = shutil.which('msgconvert'),
+        environ = 'HOOVER_SNOOP_MSGCONVERT_EXEC',
+        question_label = "Path to msgconvert executable",
+        required = False
+    )
+
+    readpst_exec = Param(
+        name = 'readpst_exec',
+        default = shutil.which('readpst'),
+        environ = 'HOOVER_SNOOP_READPST_EXEC',
+        question_label = "Path to readpst executable",
+        required = False
+    )
+
+    gpg_exec = Param(
+        name = 'gpg_exec',
+        default = shutil.which('gpg'),
+        environ = 'HOOVER_SNOOP_GPG_EXEC',
+        question_label = "Path to gpg executable",
+        required = False
+    )
+
+    allowed_hosts = Param(
+        name = 'allowed_hosts',
+        default = 'localhost',
+        environ = 'HOOVER_ALLOWED_HOSTS',
+        question_label = "Space separated list with the allowed hosts"
+    )
+
+for param in param_list:
+    if param.required:
+        param.get()
+
+def list_params(args):
+    print("Listing HOOVER SETUP params...")
+    print()
+    for param in Params.param_list:
+        print("====", param.name, "====")
+        print("label:    ", param.question_label)
+        print("env:      ", param.environ)
+        print("default:  ", param.default)
+        print("optional: ", param.optional)
+        print("value:    ", param.get())
+        print()
 
 def runcmd(cmd, **kwargs):
     if 'env' not in kwargs:
@@ -60,17 +217,21 @@ def tmp_virtualenv():
             ])
 
         tmp = Path(_tmp)
-        download(VIRTUALENV_URL, tmp)
-        download(SETUPTOOLS_URL, tmp)
-        download(PIP_URL, tmp)
+        download(Params.virtualenv_url.get(), tmp)
+        download(Params.setuptools_url.get(), tmp)
+        download(Params.pip_url.get(), tmp)
         yield run
 
 def git_clone(url, directory):
     runcmd(['git', 'clone', url], cwd=str(directory))
 
-def preflight():
+def migrate():
     manage_py('search', 'migrate')
     manage_py('snoop', 'migrate')
+
+def preflight(run_migrations=True):
+    if run_migrations:
+        migrate()
     manage_py('search', 'downloadassets')
     manage_py('search', 'collectstatic', '--noinput')
     runcmd(['npm', 'install'], cwd=str(home / 'ui'))
@@ -94,9 +255,9 @@ def create_cache_dir():
         (cache / directory).mkdir()
 
 def bootstrap(args):
-    git_clone(SEARCH_REPO, home)
-    git_clone(SNOOP_REPO, home)
-    git_clone(UI_REPO, home)
+    git_clone(Params.search_repo.get(), home)
+    git_clone(Params.snoop_repo.get(), home)
+    git_clone(Params.ui_repo.get(), home)
 
     with tmp_virtualenv() as create_virtualenv:
         create_virtualenv(home / 'venvs' / 'search')
@@ -114,7 +275,7 @@ def bootstrap(args):
     create_cache_dir()
     create_scripts()
     configure([])
-    preflight()
+    preflight(not Params.bootstrap_no_db.get())
 
 def random_secret_key(entropy=256):
     vocabulary = ('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -134,8 +295,9 @@ def configure_search():
     values = {
         'ui_root': str(home / 'ui' / 'build'),
         'secret_key': random_secret_key(),
-        'db_name': question("PostgreSQL search database", 'hoover-search'),
-        'es_url': question("Elasticsearch URL", 'http://localhost:9200'),
+        'db_name': Params.search_db.get(),
+        'es_url': Params.es_url.get(),
+        'allowed_hosts': Params.allowed_hosts.get().split(),
     }
     template = dedent("""\
         from pathlib import Path
@@ -147,6 +309,9 @@ def configure_search():
                 'NAME': {db_name!r},
             }},
         }}
+
+        ALLOWED_HOSTS = {allowed_hosts!r}
+
         STATIC_ROOT = str(base_dir / 'static')
         HOOVER_UPLOADS_ROOT = str(base_dir / 'uploads')
         HOOVER_ELASTICSEARCH_URL = {es_url!r}
@@ -164,17 +329,17 @@ def configure_snoop():
     print("Configuration values for hoover-snoop")
     values = {
         'secret_key': random_secret_key(),
-        'db_name': question("PostgreSQL snoop database", 'hoover-snoop'),
-        'es_url': question("Elasticsearch URL", 'http://localhost:9200'),
-        'tika_url': question("Tika URL", None),
-        '7z_exec': question("Path to 7z executable", shutil.which('7z')),
-        '7z_cache': str(home / 'cache' / 'archives'),
-        'msgconvert_exec': question("Path to msgconvert executable", shutil.which('msgconvert')),
-        'msg_cache': str(home / 'cache' / 'msg'),
-        'readpst_exec': question("Path to readpst executable", shutil.which('readpst')),
-        'pst_cache': str(home / 'cache' / 'pst'),
-        'gpg_exec': question("Path to gpg executable", shutil.which('gpg')),
-        'gpg_home': str(home / 'cache' / 'gpg_home'),
+        'db_name':  Params.snoop_db.get(),
+        'es_url':   Params.es_url.get(),
+        'tika_url': Params.tika_url.get(),
+        '7z_exec':  Params.sevenzip_exec.get(),
+        '7z_cache': str(home / 'cache' / 'archives') if Params.sevenzip_exec.get() else None,
+        'msgconvert_exec': Params.msgconvert_exec.get(),
+        'msg_cache': str(home / 'cache' / 'msg') if Params.msgconvert_exec.get() else None,
+        'readpst_exec': Params.readpst_exec.get(),
+        'pst_cache': str(home / 'cache' / 'pst') if Params.readpst_exec.get() else None,
+        'gpg_exec': Params.gpg_exec.get(),
+        'gpg_home': str(home / 'cache' / 'gpg_home') if Params.gpg_exec.get() else None,
     }
     template = dedent("""\
         SECRET_KEY = {secret_key!r}
@@ -184,6 +349,8 @@ def configure_snoop():
                 'NAME': {db_name!r},
             }}
         }}
+
+        ALLOWED_HOSTS = ["localhost"]
 
         SNOOP_ELASTICSEARCH_URL = {es_url!r}
         SNOOP_TIKA_SERVER_ENDPOINT = {tika_url!r}
@@ -257,7 +424,7 @@ def main():
     parser = HooverParser(description="Hoover setup")
     parser.add_subcommands('cmd', [
         bootstrap, configure, update, upgrade,
-        webserver, snoop, search,
+        webserver, snoop, search, list_params,
     ])
     (options, extra_args) = parser.parse_known_args()
     options.cmd(extra_args)

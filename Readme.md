@@ -26,3 +26,29 @@ Later, if you want to upgrade to the latest version:
 bin/hoover update
 bin/hoover upgrade
 ```
+
+### Environment variables
+
+The following environment variables are used to specify different arguments for the setup:
+
+| Name                           | Explanation                                                         | Default            |
+|--------------------------------|---------------------------------------------------------------------|--------------------|
+| `HOOVER_HOME`                  | The path where Hoover is installed.                                 | `pwd() / hoover`   |
+| `HOOVER_VIRTUALENV_URL`        | The source of the virtualenv package.                               |                    |
+| `HOOVER_SETUPTOOLS_URL`        | The source of the setuptools package.                               |                    |
+| `HOOVER_PIP_URL`               | The source of the pip package.                                      |                    |
+| `HOOVER_SEARCH_DB`             | The postgres database that `search` uses.                           | `hoover-search`    |
+| `HOOVER_SNOOP_DB`              | The postgresql database that `snoop` uses.                          | `hoover-snoop`     |
+| `HOOVER_ES_URL`                | The elasticsearch URL that will be used.                            | `localhost:9200`   |
+| `HOOVER_TIKA_URL`              | The Apache Tika URL that will be used by `snoop`. Optional.         | `None`             |
+| `HOOVER_SNOOP_SEVENZIP_EXEC`   | The `7z` executable that will be used by `snoop`. Optional.         | `which 7z`         |
+| `HOOVER_SNOOP_MSGCONVERT_EXEC` | The `msgconvert` executable that will be used by `snoop`. Optional. | `which msgconvert` |
+| `HOOVER_SNOOP_READPST_EXEC`    | The `readpst` executable that will be used by `snoop`. Optional.    | `which readpst`    |
+| `HOOVER_SNOOP_GPG_EXEC`        | The `gpg` executable that will be used by `snoop`. Optional.        | `which gpg`        |
+| `HOOVER_SETUP_REPO`            | The git repo from where the `setup` repo is cloned.                 |                    |
+| `HOOVER_SETUP_BRANCH`          | The branch / version that is checked out for the `setup` repo.      | `master`           |
+| `HOOVER_SEARCH_REPO`           | The git repo from where the `search` repo is cloned.                |                    |
+| `HOOVER_SNOOP_REPO`            | The git repo from where the `snoop` repo is cloned.                 |                    |
+| `HOOVER_UI_REPO`               | The git repo from where the `ui` repo is cloned.                    |                    |
+| `HOOVER_BOOTSTRAP_NO_DB`       | Don't assume the databases exist on bootstrap. Run `upgrade` when they're available. | `None`             |
+
