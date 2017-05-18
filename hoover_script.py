@@ -175,6 +175,28 @@ class Params:
         question_label = "Space separated list with the allowed hosts"
     )
 
+    oauth_client_id = Param(
+        name = 'oauth_client_id',
+        environ = 'HOOVER_OAUTH_CLIENT_ID',
+        question_label = "Client ID for OAuth2",
+        required = False
+    )
+
+    oauth_client_secret = Param(
+        name = 'oauth_client_secret',
+        environ = 'HOOVER_OAUTH_CLIENT_SECRET',
+        question_label = "Client secret for OAuth2",
+        required = False
+    )
+
+    oauth_liquid_url = Param(
+        name = 'oauth_liquid_url',
+        environ = 'HOOVER_OAUTH_LIQUID_URL',
+        question_label = "URL that points to the liquid-core OAuth2 provider",
+        required = False
+    )
+
+
 for param in param_list:
     if param.required:
         param.get()
@@ -298,6 +320,9 @@ def configure_search():
         'db_name': Params.search_db.get(),
         'es_url': Params.es_url.get(),
         'allowed_hosts': Params.allowed_hosts.get().split(),
+        'oauth_client_id': Params.oauth_client_id.get(),
+        'oauth_client_secret': Params.oauth_client_secret.get(),
+        'oauth_liquid_url': Params.oauth_liquid_url.get(),
     }
     template = dedent("""\
         from pathlib import Path
@@ -316,6 +341,10 @@ def configure_search():
         HOOVER_UPLOADS_ROOT = str(base_dir / 'uploads')
         HOOVER_ELASTICSEARCH_URL = {es_url!r}
         HOOVER_UI_ROOT = {ui_root!r}
+
+        HOOVER_OAUTH_LIQUID_URL = {oauth_liquid_url!r}
+        HOOVER_OAUTH_LIQUID_CLIENT_ID = {oauth_client_id!r}
+        HOOVER_OAUTH_LIQUID_CLIENT_SECRET = {oauth_client_secret!r}
     """)
     with local_py.open('w', encoding='utf-8') as f:
         f.write(template.format(**values))
