@@ -307,7 +307,7 @@ def bootstrap(args):
     ])
     create_cache_dir()
     create_scripts()
-    configure([])
+    configure([], exist_ok=False)
     preflight(not Params.bootstrap_no_db.get())
 
 def random_secret_key(entropy=256):
@@ -428,9 +428,10 @@ def configure_snoop(exist_ok = True):
     with local_py.open('w', encoding='utf-8') as f:
         f.write(template.format(**values))
 
-def configure(args):
-    configure_search()
-    configure_snoop()
+def configure(args, **kwargs):
+    exist_ok = kwargs.get('exist_ok')
+    configure_search(exist_ok)
+    configure_snoop(exist_ok)
 
 def update(args):
     runcmd(['git', 'pull'], cwd=str(home / 'setup'))
