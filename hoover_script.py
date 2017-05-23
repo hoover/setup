@@ -177,6 +177,7 @@ class Params:
 
     oauth_client_id = Param(
         name = 'oauth_client_id',
+        default = None,
         environ = 'HOOVER_OAUTH_CLIENT_ID',
         question_label = "Client ID for OAuth2",
         required = False
@@ -184,6 +185,7 @@ class Params:
 
     oauth_client_secret = Param(
         name = 'oauth_client_secret',
+        default = None,
         environ = 'HOOVER_OAUTH_CLIENT_SECRET',
         question_label = "Client secret for OAuth2",
         required = False
@@ -191,8 +193,17 @@ class Params:
 
     oauth_liquid_url = Param(
         name = 'oauth_liquid_url',
+        default = None,
         environ = 'HOOVER_OAUTH_LIQUID_URL',
         question_label = "URL that points to the liquid-core OAuth2 provider",
+        required = False
+    )
+
+    config_dir = Param(
+        name = 'config_dir',
+        default = None,
+        environ = 'HOOVER_CONFIG_DIR',
+        question_label = "The directory in which the config files are saved. Symlinks are made to the actual files.",
         required = False
     )
 
@@ -307,11 +318,19 @@ def random_secret_key(entropy=256):
     urandom = random.SystemRandom()
     return ''.join(urandom.choice(vocabulary) for _ in range(chars))
 
-def configure_search():
+def configure_search(exist_ok = True):
     local_py = home / 'search' / 'hoover' / 'site' / 'settings' / 'local.py'
-    if local_py.exists():
+    if not exist_ok and local_py.exists():
         print("{!s} already exists, skipping".format(local_py))
         return
+
+    if Params.config_dir.get() is not None:
+        config_dir = Path(Params.config_dir.get())
+        config_dir.mkdir(exist_ok=True, parents=True)
+        (config_dir / 'search').mkdir(exist_ok=True)
+        real_local_py = config_dir / 'search' / 'local.py'
+        symlink(local_py, real_local_py)
+        local_py = real_local_py
 
     print("Configuration values for hoover-search")
     values = {
@@ -349,11 +368,23 @@ def configure_search():
     with local_py.open('w', encoding='utf-8') as f:
         f.write(template.format(**values))
 
-def configure_snoop():
+def configure_snoop(exist_ok = True):
     local_py = home / 'snoop' / 'snoop' / 'site' / 'settings' / 'local.py'
-    if local_py.exists():
+    if not exist_ok and local_py.exists():
         print("{!s} already exists, skipping".format(local_py))
         return
+
+    if Params.config_dir.get() is not None:
+        config_dir = Path(Params.config_dir.get())
+        config_dir.mkdir(exist_ok=True, parents=True)
+        (config_dir / 'snoop').mkdir(exist_ok=True)
+        real_local_py = config_dir / 'snoop' / 'local.py'
+        if local_py.is_symlink() && local_py.resolve().samefile(real_local_py):
+            pass
+        else:
+            local_py.symlink_to(real_local_py)
+        symlink(local_py, real_local_py)
+        local_py = real_local_py
 
     print("Configuration values for hoover-snoop")
     values = {

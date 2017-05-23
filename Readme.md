@@ -54,4 +54,5 @@ The following environment variables are used to specify different arguments for 
 | `HOOVER_OAUTH_LIQUID_URL`      | The URL of the [liquid-core](https://github.com/liquidinvestigations/core) OAuth2 provider.||
 | `HOOVER_OAUTH_CLIENT_ID`       | The client ID to be used with the [liquid-core](https://github.com/liquidinvestigations/core) OAuth2 provider.||
 | `HOOVER_OAUTH_CLIENT_SECRET`   | The client secret to be used with the [liquid-core](https://github.com/liquidinvestigations/core) OAuth2 provider.||
+| `HOOVER_CONFIG_DIR`            | The directory in which the config files are saved. Symlinks are made to the actual files.||
 

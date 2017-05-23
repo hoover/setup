@@ -7,6 +7,8 @@ export HOOVER_SEARCH_DB=hoover-temp-search
 export HOOVER_SNOOP_DB=hoover-temp-snoop
 export HOOVER_BOOTSTRAP_NO_DB=True
 export HOOVER_ALLOWED_HOSTS="localhost https://hoover.example.org"
+export HOOVER_CONFIG_DIR="$HOOVER_HOME/the/configuration/path"
+export HOOVER_SETUP_BRANCH=search-oauth2-settings
 
 #export HOOVER_VIRTUALENV_URL
 #export HOOVER_SETUPTOOLS_URL
