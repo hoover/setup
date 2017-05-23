@@ -33,6 +33,12 @@ $HOOVER_HOME/bin/hoover upgrade
 $HOOVER_HOME/bin/hoover search doctor
 $HOOVER_HOME/bin/hoover snoop doctor
 
+export HOOVER_OAUTH_CLIENT_ID=xxxx
+export HOOVER_OAUTH_CLIENT_SECRET=xxxx
+export HOOVER_OAUTH_LIQUID_URL=http://localhost
+
+$HOOVER_HOME/bin/hoover configure
+
 (cd $HOOVER_HOME; PATH=$HOOVER_HOME/bin:$PATH PS1="ephemeral hoover $ " bash)
 
 rm -rf $HOOVER_HOME
