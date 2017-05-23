@@ -378,8 +378,8 @@ def configure_snoop(exist_ok = True):
     if Params.config_dir.get() is not None:
         config_dir = Path(Params.config_dir.get())
         config_dir.mkdir(exist_ok=True, parents=True)
-        (config_dir / 'search').mkdir(exist_ok=True)
-        real_local_py = config_dir / 'search' / 'local.py'
+        (config_dir / 'snoop').mkdir(exist_ok=True)
+        real_local_py = config_dir / 'snoop' / 'local.py'
         if not local_py.is_symlink() or not local_py.resolve().samefile(real_local_py):
             local_py.symlink_to(real_local_py)
         local_py = real_local_py
