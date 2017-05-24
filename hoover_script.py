@@ -344,6 +344,7 @@ def configure_search(exist_ok = True):
         'oauth_client_id': Params.oauth_client_id.get(),
         'oauth_client_secret': Params.oauth_client_secret.get(),
         'oauth_liquid_url': Params.oauth_liquid_url.get(),
+        'oauth_app': '"hoover.contrib.oauth2",' if Params.oauth_liquid_url.get() else "",
     }
     template = dedent("""\
         from pathlib import Path
@@ -355,6 +356,17 @@ def configure_search(exist_ok = True):
                 'NAME': {db_name!r},
             }},
         }}
+
+        INSTALLED_APPS = (
+            {oauth_app}
+            'django.contrib.admin',
+            'django.contrib.auth',
+            'django.contrib.contenttypes',
+            'django.contrib.sessions',
+            'django.contrib.messages',
+            'django.contrib.staticfiles',
+            'hoover.search',
+        )
 
         ALLOWED_HOSTS = {allowed_hosts!r}
 
