@@ -207,6 +207,13 @@ class Params:
         required = False
     )
 
+    cache_dir = Param(
+        name = 'cache_dir',
+        default = str(home / 'cache'),
+        environ = 'HOOVER_CACHE_DIR',
+        question_label = "The directory in which the caches are saved. Directory should be writeable",
+        required = False
+    )
 
 for param in param_list:
     if param.required:
@@ -282,10 +289,10 @@ def create_scripts():
     bin_hoover.chmod(0o755)
 
 def create_cache_dir():
-    cache = home / 'cache'
-    cache.mkdir()
+    cache_dir = Path(Params.cache_dir.get())
+    cache.mkdir(exist_ok=True, parents=True)
     for directory in ['msg', 'archives', 'pst', 'gpg_home']:
-        (cache / directory).mkdir()
+        (cache / directory).mkdir(exist_ok=True)
 
 def bootstrap(args):
     git_clone(Params.search_repo.get(), home)
@@ -397,6 +404,7 @@ def configure_snoop(exist_ok = True):
             local_py.symlink_to(real_local_py)
         local_py = real_local_py
 
+    cache = Path(Params.cache_dir.get())
     print("Configuration values for hoover-snoop")
     values = {
         'secret_key': random_secret_key(),
@@ -404,13 +412,13 @@ def configure_snoop(exist_ok = True):
         'es_url':   Params.es_url.get(),
         'tika_url': Params.tika_url.get(),
         '7z_exec':  Params.sevenzip_exec.get(),
-        '7z_cache': str(home / 'cache' / 'archives') if Params.sevenzip_exec.get() else None,
+        '7z_cache': str(cache / 'archives') if Params.sevenzip_exec.get() else None,
         'msgconvert_exec': Params.msgconvert_exec.get(),
-        'msg_cache': str(home / 'cache' / 'msg') if Params.msgconvert_exec.get() else None,
+        'msg_cache': str(cache / 'msg') if Params.msgconvert_exec.get() else None,
         'readpst_exec': Params.readpst_exec.get(),
-        'pst_cache': str(home / 'cache' / 'pst') if Params.readpst_exec.get() else None,
+        'pst_cache': str(cache / 'pst') if Params.readpst_exec.get() else None,
         'gpg_exec': Params.gpg_exec.get(),
-        'gpg_home': str(home / 'cache' / 'gpg_home') if Params.gpg_exec.get() else None,
+        'gpg_home': str(cache / 'gpg_home') if Params.gpg_exec.get() else None,
     }
     template = dedent("""\
         SECRET_KEY = {secret_key!r}
