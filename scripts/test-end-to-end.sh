@@ -37,7 +37,7 @@ export HOOVER_OAUTH_CLIENT_ID=xxxx
 export HOOVER_OAUTH_CLIENT_SECRET=xxxx
 export HOOVER_OAUTH_LIQUID_URL=http://localhost
 
-$HOOVER_HOME/bin/hoover configure
+$HOOVER_HOME/bin/hoover reconfigure
 
 (cd $HOOVER_HOME; PATH=$HOOVER_HOME/bin:$PATH PS1="ephemeral hoover $ " bash)
 

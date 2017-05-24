@@ -307,7 +307,8 @@ def bootstrap(args):
     ])
     create_cache_dir()
     create_scripts()
-    configure([], exist_ok=False)
+    configure_snoop(exist_ok=False)
+    configure_search(exist_ok=False)
     preflight(not Params.bootstrap_no_db.get())
 
 def random_secret_key(entropy=256):
@@ -428,10 +429,9 @@ def configure_snoop(exist_ok = True):
     with local_py.open('w', encoding='utf-8') as f:
         f.write(template.format(**values))
 
-def configure(args, **kwargs):
-    exist_ok = kwargs.get('exist_ok')
-    configure_search(exist_ok)
-    configure_snoop(exist_ok)
+def reconfigure(args):
+    configure_search(exist_ok=True)
+    configure_snoop(exist_ok=True)
 
 def update(args):
     runcmd(['git', 'pull'], cwd=str(home / 'setup'))
@@ -482,7 +482,7 @@ def search(args):
 def main():
     parser = HooverParser(description="Hoover setup")
     parser.add_subcommands('cmd', [
-        bootstrap, configure, update, upgrade,
+        bootstrap, reconfigure, update, upgrade,
         webserver, snoop, search, list_params,
     ])
     (options, extra_args) = parser.parse_known_args()
