@@ -288,7 +288,7 @@ def create_scripts():
     bin_hoover.chmod(0o755)
 
 def create_cache_dir():
-    cache_dir = Path(Params.cache_dir.get())
+    cache = Path(Params.cache_dir.get())
     cache.mkdir(exist_ok=True, parents=True)
     for directory in ['msg', 'archives', 'pst', 'gpg_home']:
         (cache / directory).mkdir(exist_ok=True)
