@@ -2,7 +2,7 @@
 set -x
 
 export HOOVER_HOME=`mktemp -d`
-export HOOVER_SETUP_BRANCH=automate-hoover-script
+export HOOVER_SETUP_BRANCH=master
 export HOOVER_SEARCH_DB=hoover-temp-search
 export HOOVER_SNOOP_DB=hoover-temp-snoop
 export HOOVER_BOOTSTRAP_NO_DB=True
