@@ -216,8 +216,7 @@ class Params:
     )
 
 for param in param_list:
-    if param.required:
-        param.get()
+    param.get()
 
 def list_params(args):
     print("Listing HOOVER SETUP params...")
