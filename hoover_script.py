@@ -121,6 +121,13 @@ class Params:
         question_label = "PostgreSQL snoop2 database"
     )
 
+    snoop2_blobs = Param(
+        name = 'snoop2_blobs',
+        default = str(home / 'blobs'),
+        environ = 'HOOVER_SNOOP2_BLOBS',
+        question_label = "Blob storage for snoop2"
+    )
+
     es_url = Param(
         name = 'es_url',
         default = 'http://localhost:9200',
@@ -356,13 +363,14 @@ def configure_snoop2(exist_ok = True):
             local_py.symlink_to(real_local_py)
         local_py = real_local_py
 
+    Params.snoop2_blobs.get().mkdir(exist_ok=True, parents=True)
+
     print("Configuration values for hoover-snoop2")
     values = {
         'secret_key': random_secret_key(),
         'db_name':  Params.snoop2_db.get(),
         'tika_url': Params.tika_url.get(),
         'blobs': Params.snoop2_blobs.get(),
-        'gpg_exec': Params.gpg_exec.get(),
     }
     template = dedent("""\
         SECRET_KEY = {secret_key!r}
