@@ -95,10 +95,10 @@ class Params:
         required = False
     )
 
-    snoop_repo = Param(
-        name = 'snoop_repo',
-        default = 'https://github.com/hoover/snoop.git',
-        environ = 'HOOVER_SNOOP_REPO'
+    snoop2_repo = Param(
+        name = 'snoop2_repo',
+        default = 'https://github.com/hoover/snoop2.git',
+        environ = 'HOOVER_SNOOP2_REPO'
     )
 
     ui_repo = Param(
@@ -114,11 +114,11 @@ class Params:
         question_label = "PostgreSQL search database"
     )
 
-    snoop_db = Param(
-        name = 'snoop_db',
-        default = 'hoover-snoop',
-        environ = 'HOOVER_SNOOP_DB',
-        question_label = "PostgreSQL snoop database"
+    snoop2_db = Param(
+        name = 'snoop2_db',
+        default = 'hoover-snoop2',
+        environ = 'HOOVER_SNOOP2_DB',
+        question_label = "PostgreSQL snoop2 database"
     )
 
     es_url = Param(
@@ -133,38 +133,6 @@ class Params:
         default = None,
         environ = 'HOOVER_TIKA_URL',
         question_label = "Tika URL",
-        required = False
-    )
-
-    sevenzip_exec = Param(
-        name = '7z_exec',
-        default = shutil.which('7z'),
-        environ = 'HOOVER_SNOOP_SEVENZIP_EXEC',
-        question_label = "Path to 7z executable",
-        required = False
-    )
-
-    msgconvert_exec = Param(
-        name = 'msgconvert_exec',
-        default = shutil.which('msgconvert'),
-        environ = 'HOOVER_SNOOP_MSGCONVERT_EXEC',
-        question_label = "Path to msgconvert executable",
-        required = False
-    )
-
-    readpst_exec = Param(
-        name = 'readpst_exec',
-        default = shutil.which('readpst'),
-        environ = 'HOOVER_SNOOP_READPST_EXEC',
-        question_label = "Path to readpst executable",
-        required = False
-    )
-
-    gpg_exec = Param(
-        name = 'gpg_exec',
-        default = shutil.which('gpg'),
-        environ = 'HOOVER_SNOOP_GPG_EXEC',
-        question_label = "Path to gpg executable",
         required = False
     )
 
@@ -204,14 +172,6 @@ class Params:
         default = None,
         environ = 'HOOVER_CONFIG_DIR',
         question_label = "The directory in which the config files are saved. Symlinks are made to the actual files.",
-        required = False
-    )
-
-    cache_dir = Param(
-        name = 'cache_dir',
-        default = str(home / 'cache'),
-        environ = 'HOOVER_CACHE_DIR',
-        question_label = "The directory in which the caches are saved. Directory should be writeable",
         required = False
     )
 
@@ -266,7 +226,7 @@ def git_clone(url, directory):
 
 def migrate():
     manage_py('search', 'migrate')
-    manage_py('snoop', 'migrate')
+    manage_py('snoop2', 'migrate')
 
 def preflight(run_migrations=True):
     if run_migrations:
@@ -287,20 +247,14 @@ def create_scripts():
         ))
     bin_hoover.chmod(0o755)
 
-def create_cache_dir():
-    cache = Path(Params.cache_dir.get())
-    cache.mkdir(exist_ok=True, parents=True)
-    for directory in ['msg', 'archives', 'pst', 'gpg_home']:
-        (cache / directory).mkdir(exist_ok=True)
-
 def bootstrap(args):
     git_clone(Params.search_repo.get(), home)
-    git_clone(Params.snoop_repo.get(), home)
+    git_clone(Params.snoop2_repo.get(), home)
     git_clone(Params.ui_repo.get(), home)
 
     with tmp_virtualenv() as create_virtualenv:
         create_virtualenv(home / 'venvs' / 'search')
-        create_virtualenv(home / 'venvs' / 'snoop')
+        create_virtualenv(home / 'venvs' / 'snoop2')
 
     venv = lambda name, cmd: home / 'venvs' / name / 'bin' / cmd
     runcmd([
@@ -308,12 +262,11 @@ def bootstrap(args):
         '-r', home / 'search' / 'requirements.txt',
     ])
     runcmd([
-        venv('snoop', 'pip'), 'install',
-        '-r', home / 'snoop' / 'requirements.txt',
+        venv('snoop2', 'pip'), 'install',
+        '-r', home / 'snoop2' / 'requirements.txt',
     ])
-    create_cache_dir()
     create_scripts()
-    configure_snoop(exist_ok=False)
+    configure_snoop2(exist_ok=False)
     configure_search(exist_ok=False)
     preflight(not Params.bootstrap_no_db.get())
 
@@ -388,8 +341,8 @@ def configure_search(exist_ok = True):
     with local_py.open('w', encoding='utf-8') as f:
         f.write(template.format(**values))
 
-def configure_snoop(exist_ok = True):
-    local_py = home / 'snoop' / 'snoop' / 'site' / 'settings' / 'local.py'
+def configure_snoop2(exist_ok = True):
+    local_py = home / 'snoop2' / 'snoop' / 'localsettings.py'
     if not exist_ok and local_py.exists():
         print("{!s} already exists, skipping".format(local_py))
         return
@@ -397,27 +350,19 @@ def configure_snoop(exist_ok = True):
     if Params.config_dir.get() is not None:
         config_dir = Path(Params.config_dir.get())
         config_dir.mkdir(exist_ok=True, parents=True)
-        (config_dir / 'snoop').mkdir(exist_ok=True)
-        real_local_py = config_dir / 'snoop' / 'local.py'
+        (config_dir / 'snoop2').mkdir(exist_ok=True)
+        real_local_py = config_dir / 'snoop2' / 'local.py'
         if not local_py.is_symlink() or not local_py.resolve().samefile(real_local_py):
             local_py.symlink_to(real_local_py)
         local_py = real_local_py
 
-    cache = Path(Params.cache_dir.get())
-    print("Configuration values for hoover-snoop")
+    print("Configuration values for hoover-snoop2")
     values = {
         'secret_key': random_secret_key(),
-        'db_name':  Params.snoop_db.get(),
-        'es_url':   Params.es_url.get(),
+        'db_name':  Params.snoop2_db.get(),
         'tika_url': Params.tika_url.get(),
-        '7z_exec':  Params.sevenzip_exec.get(),
-        '7z_cache': str(cache / 'archives') if Params.sevenzip_exec.get() else None,
-        'msgconvert_exec': Params.msgconvert_exec.get(),
-        'msg_cache': str(cache / 'msg') if Params.msgconvert_exec.get() else None,
-        'readpst_exec': Params.readpst_exec.get(),
-        'pst_cache': str(cache / 'pst') if Params.readpst_exec.get() else None,
+        'blobs': Params.snoop2_blobs.get(),
         'gpg_exec': Params.gpg_exec.get(),
-        'gpg_home': str(cache / 'gpg_home') if Params.gpg_exec.get() else None,
     }
     template = dedent("""\
         SECRET_KEY = {secret_key!r}
@@ -430,27 +375,15 @@ def configure_snoop(exist_ok = True):
 
         ALLOWED_HOSTS = ["localhost"]
 
-        SNOOP_ELASTICSEARCH_URL = {es_url!r}
         SNOOP_TIKA_SERVER_ENDPOINT = {tika_url!r}
-
-        SNOOP_ARCHIVE_CACHE_ROOT = {7z_cache!r}
-        SNOOP_SEVENZIP_BINARY = {7z_exec!r}
-
-        SNOOP_MSG_CACHE = {msg_cache!r}
-        SNOOP_MSGCONVERT_SCRIPT = {msgconvert_exec!r}
-
-        SNOOP_PST_CACHE_ROOT = {pst_cache!r}
-        SNOOP_READPST_BINARY = {readpst_exec!r}
-
-        SNOOP_GPG_HOME = {gpg_home!r}
-        SNOOP_GPG_BINARY = {gpg_exec!r}
+        SNOOP_BLOB_STORAGE = {blobs!r}
     """)
     with local_py.open('w', encoding='utf-8') as f:
         f.write(template.format(**values))
 
 def reconfigure(args):
     configure_search(exist_ok=True)
-    configure_snoop(exist_ok=True)
+    configure_snoop2(exist_ok=True)
 
 def update(args):
     runcmd(['git', 'pull'], cwd=str(home / 'setup'))
@@ -462,12 +395,12 @@ def manage_py(name, *args):
 
 def upgrade(args):
     runcmd(['git', 'pull'], cwd=str(home / 'search'))
-    runcmd(['git', 'pull'], cwd=str(home / 'snoop'))
+    runcmd(['git', 'pull'], cwd=str(home / 'snoop2'))
     runcmd(['git', 'pull'], cwd=str(home / 'ui'))
     runcmd([home / 'venvs' / 'search' / 'bin' / 'pip-sync'],
         cwd=str(home / 'search'))
-    runcmd([home / 'venvs' / 'snoop' / 'bin' / 'pip-sync'],
-        cwd=str(home / 'snoop'))
+    runcmd([home / 'venvs' / 'snoop2' / 'bin' / 'pip-sync'],
+        cwd=str(home / 'snoop2'))
     preflight()
 
 def execv(args):
@@ -475,7 +408,7 @@ def execv(args):
 
 def webserver(args):
     parser = HooverParser(description="Run webserver")
-    parser.add_argument('server', choices=['search', 'snoop'])
+    parser.add_argument('server', choices=['search', 'snoop2'])
     (options, extra_args) = parser.parse_known_args(args)
 
     if options.server == 'search':
@@ -483,14 +416,14 @@ def webserver(args):
         os.chdir(str(home / 'search'))
         execv([waitress] + extra_args + ['hoover.site.wsgi:application'])
 
-    if options.server == 'snoop':
-        waitress = str(home / 'venvs' / 'snoop' / 'bin' / 'waitress-serve')
-        os.chdir(str(home / 'snoop'))
-        execv([waitress] + extra_args + ['snoop.site.wsgi:application'])
+    if options.server == 'snoop2':
+        waitress = str(home / 'venvs' / 'snoop2' / 'bin' / 'waitress-serve')
+        os.chdir(str(home / 'snoop2'))
+        execv([waitress] + extra_args + ['snoop.wsgi:application'])
 
-def snoop(args):
-    py = str(home / 'venvs' / 'snoop' / 'bin' / 'python')
-    manage_py = str(home / 'snoop' / 'manage.py')
+def snoop2(args):
+    py = str(home / 'venvs' / 'snoop2' / 'bin' / 'python')
+    manage_py = str(home / 'snoop2' / 'manage.py')
     execv([py, manage_py] + args)
 
 def search(args):
@@ -502,7 +435,7 @@ def main():
     parser = HooverParser(description="Hoover setup")
     parser.add_subcommands('cmd', [
         bootstrap, reconfigure, update, upgrade,
-        webserver, snoop, search, list_params,
+        webserver, snoop2, search, list_params,
     ])
     (options, extra_args) = parser.parse_known_args()
     options.cmd(extra_args)
