@@ -363,7 +363,7 @@ def configure_snoop2(exist_ok = True):
             local_py.symlink_to(real_local_py)
         local_py = real_local_py
 
-    Params.snoop2_blobs.get().mkdir(exist_ok=True, parents=True)
+    Path(Params.snoop2_blobs.get()).mkdir(exist_ok=True, parents=True)
 
     print("Configuration values for hoover-snoop2")
     values = {
