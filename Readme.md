@@ -4,8 +4,8 @@ Scripts to install and configure [Hoover](https://hoover.github.io)
 This magic script will create a folder (named `hoover` by default) and install
 components in it:
 
-* Clones of the `search`, `snoop` and `ui` repos
-* Virtualenvs and Python dependencies for `search` and `snoop`
+* Clones of the `search`, `snoop2` and `ui` repos
+* Virtualenvs and Python dependencies for `search` and `snoop2`
 * npm dependencies for `ui`
 
 ```shell
@@ -16,7 +16,7 @@ To run the servers, start these two daemons from a daemon manager like
 supervisor:
 
 ```shell
-bin/hoover webserver snoop --host=localhost --port=9000
+bin/hoover webserver snoop2 --host=localhost --port=9000
 bin/hoover webserver search --host=localhost --port=8000
 ```
 
@@ -38,17 +38,14 @@ The following environment variables are used to specify different arguments for 
 | `HOOVER_SETUPTOOLS_URL`        | The source of the setuptools package.                               |                    |
 | `HOOVER_PIP_URL`               | The source of the pip package.                                      |                    |
 | `HOOVER_SEARCH_DB`             | The postgres database that `search` uses.                           | `hoover-search`    |
-| `HOOVER_SNOOP_DB`              | The postgresql database that `snoop` uses.                          | `hoover-snoop`     |
+| `HOOVER_SNOOP2_DB`             | The postgresql database that `snoop2` uses.                         | `hoover-snoop2`    |
+| `HOOVER_SNOOP2_BLOBS`          | Path to blob storage for `snoop2`.                                  |                    |
 | `HOOVER_ES_URL`                | The elasticsearch URL that will be used.                            | `localhost:9200`   |
-| `HOOVER_TIKA_URL`              | The Apache Tika URL that will be used by `snoop`. Optional.         | `None`             |
-| `HOOVER_SNOOP_SEVENZIP_EXEC`   | The `7z` executable that will be used by `snoop`. Optional.         | `which 7z`         |
-| `HOOVER_SNOOP_MSGCONVERT_EXEC` | The `msgconvert` executable that will be used by `snoop`. Optional. | `which msgconvert` |
-| `HOOVER_SNOOP_READPST_EXEC`    | The `readpst` executable that will be used by `snoop`. Optional.    | `which readpst`    |
-| `HOOVER_SNOOP_GPG_EXEC`        | The `gpg` executable that will be used by `snoop`. Optional.        | `which gpg`        |
+| `HOOVER_SNOOP2_TIKA_URL`              | The Apache Tika URL that will be used by `snoop2`.           | `localhost:9998`             |
 | `HOOVER_SETUP_REPO`            | The git repo from where the `setup` repo is cloned.                 |                    |
 | `HOOVER_SETUP_BRANCH`          | The branch / version that is checked out for the `setup` repo.      | `master`           |
 | `HOOVER_SEARCH_REPO`           | The git repo from where the `search` repo is cloned.                |                    |
-| `HOOVER_SNOOP_REPO`            | The git repo from where the `snoop` repo is cloned.                 |                    |
+| `HOOVER_SNOOP2_REPO`           | The git repo from where the `snoop2` repo is cloned.                |                    |
 | `HOOVER_UI_REPO`               | The git repo from where the `ui` repo is cloned.                    |                    |
 | `HOOVER_BOOTSTRAP_NO_DB`       | Don't assume the databases exist on bootstrap. Run `upgrade` when they're available. | `None`             |
 | `HOOVER_OAUTH_LIQUID_URL`      | The URL of the [liquid-core](https://github.com/liquidinvestigations/core) OAuth2 provider.||
